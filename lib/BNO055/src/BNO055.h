@@ -40,7 +40,14 @@ public:
      */
     BNO055_OPERATION_MODE getOperationMode();
 
+    /**
+     * Trigger a power-on reset (POR), wait for the reset to happen (650ms) and then run a test
+     * to see if the restarted properly.
+     * @return Whether the reset was successful.
+     */
     bool resetSystem();
+
+    bool performSelfTest();
 };
 
 

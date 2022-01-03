@@ -84,9 +84,25 @@ BNO055_OPERATION_MODE BNO055::getOperationMode() {
 }
 
 bool BNO055::resetSystem() {
-    byte currentSetting = readRegister(BNO055_SYS_TRIGGER);
-    byte newSetting = currentSetting | 0b00100000;  // modify SYS_TRIGGER to set RST_SYS to 1
-    bool writeResult = writeRegister(BNO055_SYS_TRIGGER, newSetting);
+    // modify SYS_TRIGGER to set RST_SYS to 1
+    bool writeResult = writeRegister(BNO055_SYS_TRIGGER, 0b00100000);
     delay(650); // delay for the POR time specified in Table 0-2
-    return writeResult;
+
+    // now perform a self test
+    return performSelfTest() && writeResult;
+}
+
+bool BNO055::performSelfTest() {
+    // modify SYS_TRIGGER to set Self_Test to 1
+    bool writeSuccess = writeRegister(BNO055_SYS_TRIGGER, 0b1);
+
+    // the datasheet does not say (?) how long the built-in self test takes so delay for the same time
+    // as the power on self test
+    delay(400);
+
+    // filter the test result to eliminate the reserved bits and ST_MCU as
+    // there is no test performed on ST_MCU for the self test
+    byte selfTestResult = 0b00000111 & readRegister(BNO055_ST_RESULT);
+
+    return (selfTestResult == 0b111) && writeSuccess;
 }
