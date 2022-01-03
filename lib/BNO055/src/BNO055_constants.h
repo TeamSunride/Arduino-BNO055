@@ -31,6 +31,46 @@ enum BNO055_POWER_MODE {
 };
 
 /**
+ * Describes the possible values for the OPR_MODE register
+ *
+ *  ╔════════════════╦════════════════════╦═════════════════════════════════════════════╗
+ *  ║                ║  Sensor Signals    ║        Available Fusion Data                ║
+ *  ╠ Operating Mode ╬═══════╦═════╦══════║══════════════════════╦══════════════════════╣
+ *  ║                ║ Accel ║ Mag ║ Gyro ║ Relative-orientation ║ Absolute-orientation ║
+ *  ╠════════════════╬═══════╬═════╬══════╬══════════════════════╬══════════════════════╣
+ *  ║ CONFIGMODE     ║ -     ║ -   ║ -    ║ -                    ║ -                    ║
+ *  ║ ACCONLY        ║ X     ║ -   ║ -    ║ -                    ║ -                    ║
+ *  ║ MAGONLY        ║ -     ║ X   ║ -    ║ -                    ║ -                    ║
+ *  ║ GYROONLY       ║ -     ║ -   ║ X    ║ -                    ║ -                    ║
+ *  ║ ACCMAG         ║ X     ║ X   ║ -    ║ -                    ║ -                    ║
+ *  ║ ACCGYRO        ║ X     ║ -   ║ X    ║ -                    ║ -                    ║
+ *  ║ MAGGYRO        ║ -     ║ X   ║ X    ║ -                    ║ -                    ║
+ *  ║ AMG            ║ X     ║ X   ║ X    ║ -                    ║ -                    ║
+ *  ║ IMU            ║ X     ║ -   ║ X    ║ X                    ║ -                    ║
+ *  ║ COMPASS        ║ X     ║ X   ║ -    ║ -                    ║ X                    ║
+ *  ║ M4G            ║ X     ║ X   ║ X    ║ -                    ║                      ║
+ *  ║ NDOF_FMC_OFF   ║ X     ║ X   ║ X    ║ -                    ║ X                    ║
+ *  ║ NDOF           ║ X     ║ X   ║ X    ║ -                    ║ X                    ║
+ *  ╚════════════════╩═══════╩═════╩══════╩══════════════════════╩══════════════════════╝
+ *
+ */
+enum BNO055_OPERATION_MODE {
+    CONFIGMODE = 0b0000,
+    ACCONLY = 0b0001,
+    MAGONLY = 0b0010,
+    GYROONLY = 0b0011,
+    ACCMAG = 0b0100,
+    ACCGYRO = 0b0101,
+    MAGGYRO = 0b0110,
+    AMG = 0b0111,
+    IMU = 0b1000,
+    COMPASS = 0b1001,
+    M4G = 0b1010,
+    NDOF_FMC_OFF = 0b1011,
+    NDOF = 0b1100
+};
+
+/**
  * PAGE 0
  *
  * The following registers are on PAGE 0 of the register map
@@ -103,8 +143,8 @@ enum BNO055_POWER_MODE {
 #define BNO055_SYS_STATUS           0x39
 #define BNO055_SYS_ERR              0x3A
 #define BNO055_UNIT_SEL             0x3B
-#define BNO055_OPR_MODE             0x3D
-#define BNO055_PWR_MODE             0x3E
+#define BNO055_OPR_MODE_REG             0x3D
+#define BNO055_PWR_MODE_REG             0x3E
 #define BNO055_SYS_TRIGGER          0x3F
 #define BNO055_TEMP_SOURCE          0x40
 #define BNO055_AXIS_MAP_CONFIG      0x41

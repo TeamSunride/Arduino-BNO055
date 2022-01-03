@@ -25,11 +25,11 @@ byte I2CDevice::readRegister(byte offset) {
     return result;
 }
 
-void I2CDevice::writeRegister(byte offset, byte data) {
+bool I2CDevice::writeRegister(byte offset, byte data) {
     pipe->beginTransmission(address);
     pipe->write(offset);
     pipe->write(data);
-    pipe->endTransmission();
+    return pipe->endTransmission() == 0; // 0 means success
 }
 
 void I2CDevice::readMultipleRegisters(uint8_t *outputPointer, uint8_t offset, uint8_t length) {

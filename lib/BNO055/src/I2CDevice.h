@@ -12,7 +12,7 @@ class I2CDevice {
 public:
     I2CDevice(byte i2c_address, TwoWire *i2c_pipe);
     byte readRegister(byte offset);
-    void writeRegister(byte offset, byte dataToWrite);
+    bool writeRegister(byte offset, byte data);
     void readMultipleRegisters(byte *outputPointer, byte offset, byte length);
 protected:
     byte address;
