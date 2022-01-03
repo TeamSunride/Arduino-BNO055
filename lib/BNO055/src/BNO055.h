@@ -14,6 +14,7 @@ class BNO055 : public I2CDevice {
 public:
     using I2CDevice::I2CDevice;  // inherit the constructor from I2CDevice
     bool begin();
+    void setMode(BNO055_POWER_MODE mode);
 };
 
 

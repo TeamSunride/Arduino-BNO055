@@ -6,7 +6,7 @@
 #include "BNO055.h"
 
 bool BNO055::begin() {
-    delay(1000); // wait 400ms for the device to start (Page 13)
+    delay(400); // wait 400ms for the device to start (Page 13)
 
     /**
      * During the device startup, a power on self test is executed. This feature checks that the
@@ -28,9 +28,16 @@ bool BNO055::begin() {
 
     byte selfTestResult = readRegister(BNO055_ST_RESULT);
 
-    Serial.println(selfTestResult, BIN);
-
     // A successful self test would return a value of 0b1111
 
     return selfTestResult == 0b1111;
+}
+
+void BNO055::setMode(BNO055_POWER_MODE mode) {
+
+    // default to normal mode if an incorrect input is made
+    if(mode > BNO055_POWER_MODE::SUSPEND || mode < BNO055_POWER_MODE::NORMAL)
+        mode = BNO055_POWER_MODE::NORMAL;
+
+    writeRegister(BNO055_PWR_MODE, mode);
 }

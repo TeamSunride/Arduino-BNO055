@@ -6,6 +6,30 @@
 #ifndef BNO055_CONSTANTS_H
 #define BNO055_CONSTANTS_H
 
+enum BNO055_POWER_MODE {
+    /**
+     * In normal mode all sensors required for the selected operating mode (see section 3.3) are
+     * always switched ON. The register map and the internal peripherals of the MCU are always
+     * operative in this mode.
+     */
+    NORMAL = 0b00,
+
+    /**
+     * If no activity (i.e. no motion) is detected for a configurable duration (default 5 seconds), the
+     * BNO055 enters the low power mode. In this mode only the accelerometer is active. Once
+     * motion is detected (i.e. the accelerometer signals an any-motion interrupt), the system is
+     * woken up and normal mode is entered.
+     */
+    LOW_POWER = 0b01,
+
+    /**
+     * In suspend mode the system is paused and all the sensors and the microcontroller are put
+     * into sleep mode. No values in the register map will be updated in this mode. To exit from
+     * suspend mode the mode should be changed by writing to the PWR_MODE register (see Table 3-1).
+     */
+    SUSPEND = 0b10
+};
+
 /**
  * PAGE 0
  *
