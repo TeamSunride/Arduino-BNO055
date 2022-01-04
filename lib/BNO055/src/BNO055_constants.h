@@ -6,6 +6,9 @@
 #ifndef BNO055_CONSTANTS_H
 #define BNO055_CONSTANTS_H
 
+// Comments in this file are not mine and are taken from the BNO055 datasheet
+
+
 enum BNO055_POWER_MODE {
     /**
      * In normal mode all sensors required for the selected operating mode (see section 3.3) are
@@ -31,42 +34,100 @@ enum BNO055_POWER_MODE {
 };
 
 /**
- * Describes the possible values for the OPR_MODE register
- *
- *  ╔════════════════╦════════════════════╦═════════════════════════════════════════════╗
- *  ║                ║  Sensor Signals    ║        Available Fusion Data                ║
- *  ╠ Operating Mode ╬═══════╦═════╦══════║══════════════════════╦══════════════════════╣
- *  ║                ║ Accel ║ Mag ║ Gyro ║ Relative-orientation ║ Absolute-orientation ║
- *  ╠════════════════╬═══════╬═════╬══════╬══════════════════════╬══════════════════════╣
- *  ║ CONFIGMODE     ║ -     ║ -   ║ -    ║ -                    ║ -                    ║
- *  ║ ACCONLY        ║ X     ║ -   ║ -    ║ -                    ║ -                    ║
- *  ║ MAGONLY        ║ -     ║ X   ║ -    ║ -                    ║ -                    ║
- *  ║ GYROONLY       ║ -     ║ -   ║ X    ║ -                    ║ -                    ║
- *  ║ ACCMAG         ║ X     ║ X   ║ -    ║ -                    ║ -                    ║
- *  ║ ACCGYRO        ║ X     ║ -   ║ X    ║ -                    ║ -                    ║
- *  ║ MAGGYRO        ║ -     ║ X   ║ X    ║ -                    ║ -                    ║
- *  ║ AMG            ║ X     ║ X   ║ X    ║ -                    ║ -                    ║
- *  ║ IMU            ║ X     ║ -   ║ X    ║ X                    ║ -                    ║
- *  ║ COMPASS        ║ X     ║ X   ║ -    ║ -                    ║ X                    ║
- *  ║ M4G            ║ X     ║ X   ║ X    ║ -                    ║                      ║
- *  ║ NDOF_FMC_OFF   ║ X     ║ X   ║ X    ║ -                    ║ X                    ║
- *  ║ NDOF           ║ X     ║ X   ║ X    ║ -                    ║ X                    ║
- *  ╚════════════════╩═══════╩═════╩══════╩══════════════════════╩══════════════════════╝
- *
+ * The BNO055 provides a variety of output signals, which can be chosen by selecting the
+appropriate operation mode.
  */
 enum BNO055_OPERATION_MODE {
+    /**
+     * This mode is used to configure BNO, wherein all output data is reset to zero and sensor
+fusion is halted. This is the only mode in which all the writable register map entries can be
+changed. (Exceptions from this rule are the interrupt registers (INT and INT_MSK) and the
+operation mode register (OPR_MODE), which can be modified in any operation mode.)
+As being said, this mode is the default operation mode after power-on or RESET. Any other
+mode must be chosen to be able to read any sensor data.
+     */
     CONFIGMODE = 0b0000,
+    /**
+     * If the application requires only raw accelerometer data, this mode can be chosen. In this
+mode the other sensors (magnetometer, gyro) are suspended to lower the power
+consumption. In this mode, the BNO055 behaves like a stand-alone acceleration sensor
+     */
     ACCONLY = 0b0001,
+    /**
+     * In MAGONLY mode, the BNO055 behaves like a stand-alone magnetometer, with
+acceleration sensor and gyroscope being suspended.
+     */
     MAGONLY = 0b0010,
+    /**
+     * In GYROONLY mode, the BNO055 behaves like a stand-alone gyroscope, with acceleration
+sensor and magnetometer being suspended.
+     */
     GYROONLY = 0b0011,
+    /**
+     * Both accelerometer and magnetometer are switched on, the user can read the data from
+these two sensors.
+     */
     ACCMAG = 0b0100,
+    /**
+     * Both accelerometer and gyroscope are switched on; the user can read the data from these
+two sensors.
+     */
     ACCGYRO = 0b0101,
+    /**
+     * Both magnetometer and gyroscope are switched on, the user can read the data from these
+two sensors.
+     */
     MAGGYRO = 0b0110,
+    /**
+     * All three sensors accelerometer, magnetometer and gyroscope are switched on.
+     */
     AMG = 0b0111,
+    /**
+     * In the IMU mode the relative orientation of the BNO055 in space is calculated from the
+accelerometer and gyroscope data. The calculation is fast (i.e. high output data rate).
+     */
     IMU = 0b1000,
+    /**
+     * The COMPASS mode is intended to measure the magnetic earth field and calculate the
+geographic direction.
+The earth magnetic field is a vector with the horizontal components x,y and the vertical z
+component. It depends on the position on the globe and natural iron occurrence. For
+heading calculation (direction of compass pointer) only the horizontal components x and y
+are used. Therefore the vector components of the earth magnetic field must be transformed
+in the horizontal plane, which requires the knowledge of the direction of the gravity vector.
+To summarize, the heading can only be calculated when considering gravity and magnetic
+field at the same time.
+However, the measurement accuracy depends on the stability of the surrounding magnetic
+field. Furthermore, since the earth magnetic field is usually much smaller than the magnetic
+fields that occur around and inside electronic devices, the compass mode requires
+calibration (see chapter 3.10)
+     */
     COMPASS = 0b1001,
+    /**
+     * The M4G mode is similar to the IMU mode, but instead of using the gyroscope signal to
+detect rotation, the changing orientation of the magnetometer in the magnetic field is used.
+Since the magnetometer has much lower power consumption than the gyroscope, this mode
+is less power consuming in comparison to the IMU mode. There are no drift effects in this
+mode which are inherent to the gyroscope.
+However, as for compass mode, the measurement accuracy depends on the stability of the
+surrounding magnetic field.
+For this mode no magnetometer calibration is required and also not available.
+     */
     M4G = 0b1010,
+    /**
+     * This fusion mode is same as NDOF mode, but with the Fast Magnetometer Calibration
+turned ‘OFF’.
+     */
     NDOF_FMC_OFF = 0b1011,
+    /**
+     * This is a fusion mode with 9 degrees of freedom where the fused absolute orientation data
+is calculated from accelerometer, gyroscope and the magnetometer. The advantages of
+combining all three sensors are a fast calculation, resulting in high output data rate, and high
+robustness from magnetic field distortions. In this mode the Fast Magnetometer calibration
+is turned ON and thereby resulting in quick calibration of the magnetometer and higher
+output data accuracy. The current consumption is slightly higher in comparison to the
+NDOF_FMC_OFF fusion mode.
+     */
     NDOF = 0b1100
 };
 

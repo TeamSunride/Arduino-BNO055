@@ -46,6 +46,9 @@ void test_BNO055_PowerMode() {
     TEST_ASSERT_EQUAL(NORMAL, sensor.getPowerMode());
 }
 
+void test_BNO055_performSelfTest() {
+    TEST_ASSERT_TRUE(sensor.performSelfTest());
+}
 
 void setup() {
     delay(3000);
@@ -55,6 +58,7 @@ void setup() {
     RUN_TEST(test_BNO055_begin);
     RUN_TEST(test_BNO055_OperationMode);
     RUN_TEST(test_BNO055_PowerMode);
+    RUN_TEST(test_BNO055_performSelfTest);
 
     UNITY_END();
 }
