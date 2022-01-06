@@ -133,6 +133,7 @@ Vector<double> BNO055::getRawGyro() {
 
 bno055_burst_t BNO055::getAllData() {
     bno055_burst_t returnData;
+    byte buffer[30];
     switch (currentOperationMode) {
         case ACCONLY:
             returnData.accel = getRawAcceleration();
@@ -144,13 +145,16 @@ bno055_burst_t BNO055::getAllData() {
             returnData.gyro = getRawGyro();
             break;
         case ACCMAG:
-            byte buffer[12];
             memset(buffer, 0, 12);
             readMultipleRegisters(buffer, BNO055_ACC_DATA_X_LSB, 12);
             returnData.accel = getVector(buffer, 0).divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
             returnData.mag = getVector(buffer, 6).divideScalar(BNO055_MAG_CONVERSION_FACTOR);
             break;
         case ACCGYRO:
+            memset(buffer, 0, 18);
+            readMultipleRegisters(buffer, BNO055_ACC_DATA_X_LSB, 18);
+            returnData.accel = getVector(buffer, 0).divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+            returnData.gyro = getVector(buffer, 12).divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
             break;
         case MAGGYRO:
             break;
