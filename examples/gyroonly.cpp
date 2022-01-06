@@ -17,8 +17,7 @@ void setup() {
 }
 
 void loop() {
-    bno055_burst_t gyroData = sensor.getAllData();
-    Vector<double> gyroVector = gyroData.gyro;
+    Vector<double> gyroVector = sensor.getRawGyro();
     Serial.println((String)gyroVector.getX() + "," + (String)gyroVector.getY() + ","
                    + (String)gyroVector.getZ() + ",");
 }

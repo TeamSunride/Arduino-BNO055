@@ -13,12 +13,11 @@ BNO055 sensor(I2C_ADDRESS, &Wire);
 void setup() {
     Wire.begin();
     sensor.begin();
-    sensor.setOperationMode(MAGONLY);
+    sensor.setOperationMode(GYROONLY);
 }
 
 void loop() {
-    bno055_burst_t magData = sensor.getAllData();
-    Vector<double> magVector = magData.mag;
-    Serial.println((String)magVector.getX() + "," + (String)magVector.getY() + ","
-                   + (String)magVector.getZ() + ",");
+    Vector<double> gyroVector = sensor.getRawGyro();
+    Serial.println((String)gyroVector.getX() + "," + (String)gyroVector.getY() + ","
+                   + (String)gyroVector.getZ() + ",");
 }

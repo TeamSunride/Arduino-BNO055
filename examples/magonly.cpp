@@ -17,8 +17,7 @@ void setup() {
 }
 
 void loop() {
-    bno055_burst_t magData = sensor.getAllData();
-    Vector<double> magVector = magData.mag;
+    Vector<double> magVector = sensor.getRawMagnetometer();
     Serial.println((String)magVector.getX() + "," + (String)magVector.getY() + ","
                    + (String)magVector.getZ() + ",");
 }

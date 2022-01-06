@@ -21,7 +21,7 @@ void setup() {
 }
 
 void loop() {
-    bno055_burst_t data = sensor.getAllData();
-    Serial.println((String)data.accel.getX() + "," + (String)data.accel.getY() + ","
-                   + (String)data.accel.getZ() + ",");
+    Vector<double> accelVector = sensor.getRawAcceleration();
+    Serial.println((String)accelVector.getX() + "," + (String)accelVector.getY() + ","
+                   + (String)accelVector.getZ() + ",");
 }
