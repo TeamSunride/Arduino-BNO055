@@ -42,7 +42,7 @@ bool BNO055::setPowerMode(BNO055_POWER_MODE mode) {
      * restore the old operation mode
      */
 
-    BNO055_OPERATION_MODE currentOperationMode = getOperationMode();
+    BNO055_OPERATION_MODE operationMode = getOperationMode();
     setOperationMode(CONFIGMODE);
 
 
@@ -51,7 +51,7 @@ bool BNO055::setPowerMode(BNO055_POWER_MODE mode) {
         mode = NORMAL;
 
     bool writeResult = writeRegister(BNO055_PWR_MODE_REG, (int) mode);
-    setOperationMode(currentOperationMode);
+    setOperationMode(operationMode);
     return writeResult;
 }
 
@@ -72,6 +72,7 @@ bool BNO055::setOperationMode(BNO055_OPERATION_MODE mode) {
 
     bool writeResult2 = writeRegister(BNO055_OPR_MODE_REG, mode);
     delay(8); // CONFIGMODE to any operation mode takes 7 milliseconds
+    if (writeResult2) currentOperationMode = mode;
     return writeResult2;
 }
 
@@ -106,3 +107,64 @@ bool BNO055::performSelfTest() {
 
     return (selfTestResult == 0b111) && writeSuccess;
 }
+
+bool BNO055::setPageID(int pageID) {
+    if (!(pageID == 0 || pageID == 1)) pageID = 0;
+    return writeRegister(BNO055_PAGE_ID, pageID);
+}
+
+Vector<double> BNO055::getRawAcceleration() {
+    Vector<int16_t> accel = getVector<int16_t>(BNO055_ACC_DATA_X_LSB);
+    Vector<double> convertedAccel = accel.divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+    return convertedAccel;
+}
+
+Vector<double> BNO055::getRawMagnetometer() {
+    Vector<int16_t> mag = getVector<int16_t>(BNO055_MAG_DATA_X_LSB);
+    Vector<double> convertedMag = mag.divideScalar(BNO055_MAG_CONVERSION_FACTOR);
+    return convertedMag;
+}
+
+Vector<double> BNO055::getRawGyro() {
+    Vector<int16_t> gyro = getVector<int16_t>(BNO055_GYR_DATA_X_LSB);
+    Vector<double> convertedGyro = gyro.divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
+    return convertedGyro;
+}
+
+bno055_burst_t BNO055::getAllData() {
+    bno055_burst_t returnData;
+    switch (currentOperationMode) {
+        case ACCONLY:
+            returnData.accel = getRawAcceleration();
+            break;
+        case MAGONLY:
+            returnData.mag = getRawMagnetometer();
+            break;
+        case GYROONLY:
+            returnData.gyro = getRawGyro();
+            break;
+        case ACCMAG:
+            break;
+        case ACCGYRO:
+            break;
+        case MAGGYRO:
+            break;
+        case AMG:
+            break;
+        case IMU:
+            break;
+        case COMPASS:
+            break;
+        case M4G:
+            break;
+        case NDOF_FMC_OFF:
+            break;
+        case NDOF:
+            break;
+        default:
+            return returnData;
+    }
+    return returnData;
+}
+
+

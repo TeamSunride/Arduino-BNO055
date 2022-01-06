@@ -48,7 +48,44 @@ public:
     bool resetSystem();
 
     bool performSelfTest();
+
+    /**
+     * Burst read data corresponding to the current operation mode
+     */
+    bno055_burst_t getAllData();
+
+    /**
+     * Sets the page ID of the register map
+     * @param pageID The page ID to select. Should be 0 or 1
+     * @return Whether the write was successful
+     */
+    bool setPageID(int pageID);
+
+    /**
+     * @return A Vector containing unprocessed acceleration data in m/s
+     */
+    Vector<double> getRawAcceleration();
+
+    /**
+     * @return A Vector containing unprocessed magnetometer data in microTesla
+     */
+    Vector<double> getRawMagnetometer();
+
+    /**
+     * @return A Vector containing unprocessed gyroscope data in microTesla
+     */
+    Vector<double> getRawGyro();
+
+private:
+    int BNO055_ACCEL_CONVERSION_FACTOR = 100;
+    int BNO055_MAG_CONVERSION_FACTOR = 16;
+    int BNO055_GYRO_CONVERSION_FACTOR = 16;
+    template<typename T>
+    Vector<T> getVector(byte offset);
+    BNO055_OPERATION_MODE currentOperationMode = CONFIGMODE;
 };
 
+
+#include "BNO055_templates.cpp"
 
 #endif //BNO055_H

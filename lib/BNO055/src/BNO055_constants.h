@@ -8,6 +8,13 @@
 
 // Comments in this file are not mine and are taken from the BNO055 datasheet
 
+#include "Vector.h"
+
+typedef struct {
+    Vector<double> accel;
+    Vector<double> mag;
+    Vector<double> gyro;
+} bno055_burst_t;
 
 enum BNO055_POWER_MODE {
     /**
