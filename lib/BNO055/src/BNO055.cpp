@@ -205,5 +205,13 @@ Vector<int16_t> BNO055::getVector(byte *buffer, int startIndex) {
     return vector;
 }
 
+byte BNO055::getTemp() {
+    return readRegister(BNO055_TEMP_REG);
+}
+
+bool BNO055::setTempSource(BNO055_TEMP_SOURCE_TYPE source) {
+    return writeRegister(BNO055_TEMP_SOURCE, source);
+}
+
 
 

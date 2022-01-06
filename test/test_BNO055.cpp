@@ -82,6 +82,21 @@ void test_BNO055_ACCONLY() {
 
 }
 
+void test_BNO055_temperature() {
+    sensor.setOperationMode(AMG);
+    delay(100);
+    TEST_ASSERT_TRUE(sensor.setTempSource(ACCEL_TEMP));
+    TEST_ASSERT_EQUAL(ACCEL_TEMP, sensor.readRegister(BNO055_TEMP_SOURCE));
+    byte accelTemp = sensor.getTemp();
+    Serial.println("Accelerometer temperature: " + String(accelTemp));
+    TEST_ASSERT_INT_WITHIN(10, 20, accelTemp);
+
+    sensor.setTempSource(GYRO_TEMP);
+    byte gyroTemp = sensor.getTemp();
+    Serial.println("Gyroscope temperature: " + String(gyroTemp));
+    TEST_ASSERT_INT_WITHIN(10, 20, gyroTemp);
+}
+
 void setup() {
     delay(3000);
     UNITY_BEGIN();
@@ -91,6 +106,7 @@ void setup() {
     RUN_TEST(test_BNO055_OperationMode);
     RUN_TEST(test_BNO055_PowerMode);
     RUN_TEST(test_BNO055_performSelfTest);
+    RUN_TEST(test_BNO055_temperature);
 
     RUN_TEST(test_BNO055_ACCONLY);
 

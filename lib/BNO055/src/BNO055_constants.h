@@ -16,6 +16,11 @@ typedef struct {
     Vector<double> gyro;
 } bno055_burst_t;
 
+enum BNO055_TEMP_SOURCE_TYPE {
+    ACCEL_TEMP = 0b00,
+    GYRO_TEMP = 0b01
+};
+
 enum BNO055_POWER_MODE {
     /**
      * In normal mode all sensors required for the selected operating mode (see section 3.3) are

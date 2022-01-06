@@ -76,6 +76,9 @@ public:
      */
     Vector<double> getRawGyro();
 
+    byte getTemp();
+    bool setTempSource(BNO055_TEMP_SOURCE_TYPE source);
+
 private:
     int BNO055_ACCEL_CONVERSION_FACTOR = 100;
     int BNO055_MAG_CONVERSION_FACTOR = 16;
