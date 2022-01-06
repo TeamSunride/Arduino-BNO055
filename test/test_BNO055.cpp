@@ -50,6 +50,38 @@ void test_BNO055_performSelfTest() {
     TEST_ASSERT_TRUE(sensor.performSelfTest());
 }
 
+void test_BNO055_ACCONLY() {
+    sensor.resetSystem();
+
+    // enter config mode
+    sensor.setOperationMode(CONFIGMODE);
+
+    // switch to page 1 of the register map
+    sensor.setPageID(1);
+
+    /**
+     * Configure the sensor to operate in normal mode
+     * with a bandwidth of 1000Hz
+     * with a G range of 2G
+     */
+    sensor.writeRegister(BNO055_ACC_CONFIG, 0b00011100);
+    sensor.setPageID(0);
+
+    // enter ACCONLY operation mode
+    sensor.setOperationMode(ACCONLY);
+
+    delay(100);
+
+    // assume that the sensor is placed on a flat table for the test
+
+    bno055_burst_t result = sensor.getAllData();
+    Vector<double> accel = result.accel;
+    TEST_ASSERT_FLOAT_WITHIN(1, 9.81, accel.getZ());
+    TEST_ASSERT_FLOAT_WITHIN(1, 0, accel.getX());
+    TEST_ASSERT_FLOAT_WITHIN(1, 0, accel.getY());
+
+}
+
 void setup() {
     delay(3000);
     UNITY_BEGIN();
@@ -59,6 +91,8 @@ void setup() {
     RUN_TEST(test_BNO055_OperationMode);
     RUN_TEST(test_BNO055_PowerMode);
     RUN_TEST(test_BNO055_performSelfTest);
+
+    RUN_TEST(test_BNO055_ACCONLY);
 
     UNITY_END();
 }
