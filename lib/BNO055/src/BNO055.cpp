@@ -157,6 +157,10 @@ bno055_burst_t BNO055::getAllData() {
             returnData.gyro = getVector(buffer, 12).divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
             break;
         case MAGGYRO:
+            memset(buffer, 0, 12);
+            readMultipleRegisters(buffer, BNO055_MAG_DATA_X_LSB, 12);
+            returnData.mag = getVector(buffer, 0).divideScalar(BNO055_MAG_CONVERSION_FACTOR);
+            returnData.gyro = getVector(buffer, 6).divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
             break;
         case AMG:
             break;
