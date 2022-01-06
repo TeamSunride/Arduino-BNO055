@@ -256,7 +256,7 @@ Quaternion BNO055::getQuaternion() {
     x = (((int16_t) buffer[2]) | (((int16_t) buffer[3]) << 8));
     y = (((int16_t) buffer[4]) | (((int16_t) buffer[5]) << 8));
     z = (((int16_t) buffer[6]) | (((int16_t) buffer[7]) << 8));
-    quat.setW((double)w / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setW(w / BNO055_QUAT_CONVERSION_FACTOR);
     quat.setX(x / BNO055_QUAT_CONVERSION_FACTOR);
     quat.setY(y / BNO055_QUAT_CONVERSION_FACTOR);
     quat.setZ(z / BNO055_QUAT_CONVERSION_FACTOR);
