@@ -97,6 +97,30 @@ void test_BNO055_temperature() {
     TEST_ASSERT_INT_WITHIN(10, 20, gyroTemp);
 }
 
+void test_BNO055_sensor_config() {
+    sensor.resetSystem();
+    // set accelerometer to normal mode, 1000Hz, 16G
+    sensor.setAccelerometerConfig(0b00011111);
+
+    // set gyro to 523Hz and 500dps
+    sensor.setGyroscopeConfig(0b00000010);
+    // set gyro to fast power up
+    sensor.setGyroscopeOperationMode(0b1);
+
+    // set magnetometer to normal mode, high accuracy, 30Hz
+    sensor.setMagnetometerConfig(0b00011111);
+
+    sensor.setPageID(1);
+
+    TEST_ASSERT_EQUAL(0b00011111, sensor.readRegister(BNO055_ACC_CONFIG));
+    TEST_ASSERT_EQUAL(0b00000010, sensor.readRegister(BNO055_GYR_CONFIG_0));
+    TEST_ASSERT_EQUAL(0b1, sensor.readRegister(BNO055_GYR_CONFIG_1));
+    TEST_ASSERT_EQUAL(0b00011111, sensor.readRegister(BNO055_MAG_CONFIG));
+
+    sensor.setPageID(0);
+
+}
+
 void setup() {
     delay(3000);
     UNITY_BEGIN();
@@ -107,6 +131,7 @@ void setup() {
     RUN_TEST(test_BNO055_PowerMode);
     RUN_TEST(test_BNO055_performSelfTest);
     RUN_TEST(test_BNO055_temperature);
+    RUN_TEST(test_BNO055_sensor_config);
 
     RUN_TEST(test_BNO055_ACCONLY);
 

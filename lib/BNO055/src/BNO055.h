@@ -76,8 +76,69 @@ public:
      */
     Vector<double> getRawGyro();
 
+
+    /**
+     * Get a temperature reading from the accelerometer or gyro, depending on which
+     * BNO055_TEMP_SOURCE_TYPE is selected with #setTempSource.
+     *
+     * Keep in mind that the sensor will not return tenperature data if not turned on.
+     * Therefore make sure the sensor is enabled with the correct operation mode
+     * before trying to get its temperature
+     * @return Temperature in degrees celsius
+     */
     byte getTemp();
+
+    /**
+     * Set either the accelerometer or gyro to be used for temperature readings
+     * @param source Either ACCEL_TEMP or GYRO_TEMP
+     * @return Whether the write operation was successful
+     */
     bool setTempSource(BNO055_TEMP_SOURCE_TYPE source);
+
+    /**
+     * Set the G range, bandwidth, and operation mode of the accelerometer.
+     *
+     * Note that you can't change the Bandwidth and Operation Mode when in a sensor fusion
+     * mode
+     * @param value The value to write to the ACC_Config register. Refer to section 3.5.2 in the
+     * datasheet
+     * @return Whether the writes were successful
+     */
+    bool setAccelerometerConfig(byte value);
+
+    /**
+     * Set the range and bandwidth of the gyroscope.
+     *
+     * Note that you can't control these when in a sensor fusion mode. Use
+     * setGyroscopeOperationMode to set the operation mode of the gyro.
+     *
+     * @param value The value to write to GYR_Config_0. Refer to section 3.5.3 in the
+     * datasheet.
+     * @return Whether the writes were successful
+     */
+    bool setGyroscopeConfig(byte value);
+
+    /**
+     * Set the operation mode of the gyroscope.
+     *
+     * Note that you can't control this when in a sensor fusion mode. Use
+     * setGyroscopeConfig to set the range and bandwidth of the gyro
+     *
+     * @param value The value to write to GYR_Config_1. Refer to section 3.5.3 in the
+     * datasheet.
+     * @return Whether the writes were successful
+     */
+    bool setGyroscopeOperationMode(byte value);
+
+    /**
+     * Set the data output date, power mode, and operation mode of the magnetometer.
+     *
+     * Note that you can't change any of these in sensor fusion mode
+     * @param value The value to write to the MAG_Config register. Refer to section 3.5.4 in the
+     * datasheet
+     * @return Whether the writes were successful
+     */
+    bool setMagnetometerConfig(byte value);
 
 private:
     int BNO055_ACCEL_CONVERSION_FACTOR = 100;

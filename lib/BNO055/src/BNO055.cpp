@@ -213,5 +213,32 @@ bool BNO055::setTempSource(BNO055_TEMP_SOURCE_TYPE source) {
     return writeRegister(BNO055_TEMP_SOURCE, source);
 }
 
+bool BNO055::setAccelerometerConfig(byte value) {
+    bool result1 = setPageID(1);
+    bool result2 = writeRegister(BNO055_ACC_CONFIG, value);
+    bool result3 = setPageID(0);
+    return result1 && result2 && result3;
+}
+
+bool BNO055::setGyroscopeConfig(byte value) {
+    bool result1 = setPageID(1);
+    bool result2 = writeRegister(BNO055_GYR_CONFIG_0, value);
+    bool result3 = setPageID(0);
+    return result1 && result2 && result3;
+}
+
+bool BNO055::setGyroscopeOperationMode(byte value) {
+    bool result1 = setPageID(1);
+    bool result2 = writeRegister(BNO055_GYR_CONFIG_1, value);
+    bool result3 = setPageID(0);
+    return result1 && result2 && result3;
+}
+
+bool BNO055::setMagnetometerConfig(byte value) {
+    bool result1 = setPageID(1);
+    bool result2 = writeRegister(BNO055_MAG_CONFIG, value);
+    bool result3 = setPageID(0);
+    return result1 && result2 && result3;
+}
 
 
