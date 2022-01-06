@@ -80,12 +80,10 @@ private:
     int BNO055_ACCEL_CONVERSION_FACTOR = 100;
     int BNO055_MAG_CONVERSION_FACTOR = 16;
     int BNO055_GYRO_CONVERSION_FACTOR = 16;
-    template<typename T>
-    Vector<T> getVector(byte offset);
+    Vector<int16_t> getVector(byte offset);
+    Vector<int16_t> getVector(byte buffer[], int startIndex);
     BNO055_OPERATION_MODE currentOperationMode = CONFIGMODE;
 };
 
-
-#include "BNO055_templates.cpp"
 
 #endif //BNO055_H

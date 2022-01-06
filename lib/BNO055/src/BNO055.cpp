@@ -114,19 +114,19 @@ bool BNO055::setPageID(int pageID) {
 }
 
 Vector<double> BNO055::getRawAcceleration() {
-    Vector<int16_t> accel = getVector<int16_t>(BNO055_ACC_DATA_X_LSB);
+    Vector<int16_t> accel = getVector(BNO055_ACC_DATA_X_LSB);
     Vector<double> convertedAccel = accel.divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
     return convertedAccel;
 }
 
 Vector<double> BNO055::getRawMagnetometer() {
-    Vector<int16_t> mag = getVector<int16_t>(BNO055_MAG_DATA_X_LSB);
+    Vector<int16_t> mag = getVector(BNO055_MAG_DATA_X_LSB);
     Vector<double> convertedMag = mag.divideScalar(BNO055_MAG_CONVERSION_FACTOR);
     return convertedMag;
 }
 
 Vector<double> BNO055::getRawGyro() {
-    Vector<int16_t> gyro = getVector<int16_t>(BNO055_GYR_DATA_X_LSB);
+    Vector<int16_t> gyro = getVector(BNO055_GYR_DATA_X_LSB);
     Vector<double> convertedGyro = gyro.divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
     return convertedGyro;
 }
@@ -144,6 +144,11 @@ bno055_burst_t BNO055::getAllData() {
             returnData.gyro = getRawGyro();
             break;
         case ACCMAG:
+            byte buffer[12];
+            memset(buffer, 0, 12);
+            readMultipleRegisters(buffer, BNO055_ACC_DATA_X_LSB, 12);
+            returnData.accel = getVector(buffer, 0).divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+            returnData.mag = getVector(buffer, 6).divideScalar(BNO055_MAG_CONVERSION_FACTOR);
             break;
         case ACCGYRO:
             break;
@@ -166,5 +171,26 @@ bno055_burst_t BNO055::getAllData() {
     }
     return returnData;
 }
+
+Vector<int16_t> BNO055::getVector(byte offset) {
+    Vector<int16_t> vector{};
+    byte buffer[6];
+    memset(buffer, 0, 6);
+    readMultipleRegisters(buffer, offset, 6);
+
+    vector.setX(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8));
+    vector.setY(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8));
+    vector.setZ(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8));
+    return vector;
+}
+
+Vector<int16_t> BNO055::getVector(byte *buffer, int startIndex) {
+    Vector<int16_t> vector{};
+    vector.setX(((int16_t)buffer[startIndex+0]) | (((int16_t)buffer[startIndex+1]) << 8));
+    vector.setY(((int16_t)buffer[startIndex+2]) | (((int16_t)buffer[startIndex+3]) << 8));
+    vector.setZ(((int16_t)buffer[startIndex+4]) | (((int16_t)buffer[startIndex+5]) << 8));
+    return vector;
+}
+
 
 
