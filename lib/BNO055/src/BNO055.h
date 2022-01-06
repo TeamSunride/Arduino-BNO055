@@ -9,6 +9,7 @@
 #include "Arduino.h"
 #include "I2CDevice.h"
 #include "BNO055_constants.h"
+#include "util/Quaternion.h"
 
 // DATASHEET: https://cdn-shop.adafruit.com/datasheets/BST_BNO055_DS000_12.pdf
 
@@ -75,6 +76,28 @@ public:
      * @return A Vector containing unprocessed gyroscope data in microTesla
      */
     Vector<double> getRawGyro();
+
+    /**
+     * Get fused linear acceleration data in m/s
+     * @return A Vector containing fused acceleration data in m/s
+     */
+    Vector<double> getLinearAcceleration();
+
+    /**
+     * Get fused absolute orientation data as a quaternion
+     */
+    Quaternion getQuaternion();
+
+    /**
+     * Get euler angles in degrees
+     * @return Vector containing euler angles in degrees
+     */
+    Vector<double> getEuler();
+
+    /**
+     * @return Vector representing gravity
+     */
+    Vector<double> getGravity();
 
 
     /**
@@ -144,6 +167,7 @@ private:
     int BNO055_ACCEL_CONVERSION_FACTOR = 100;
     int BNO055_MAG_CONVERSION_FACTOR = 16;
     int BNO055_GYRO_CONVERSION_FACTOR = 16;
+    double BNO055_QUAT_CONVERSION_FACTOR = 1 << 14;
     Vector<int16_t> getVector(byte offset);
     Vector<int16_t> getVector(byte buffer[], int startIndex);
     BNO055_OPERATION_MODE currentOperationMode = CONFIGMODE;

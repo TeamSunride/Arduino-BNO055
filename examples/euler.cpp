@@ -17,9 +17,8 @@ void setup() {
 }
 
 void loop() {
-    Quaternion quat = sensor.getQuaternion();
+    Vector<double> euler = sensor.getEuler();
     // using "pyteaplot"
-    Serial.println("w"+(String)quat.getW() + "wa" + (String)quat.getX() + "ab"
-       + (String)quat.getY() + "bc" + quat.getZ() + "c");
-
+    Serial.println("y" + (String) euler.getX() + "yp" + (String) euler.getY() + "pr"
+                   + (String) euler.getZ() + "r");
 }

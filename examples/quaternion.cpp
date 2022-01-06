@@ -20,6 +20,6 @@ void loop() {
     Quaternion quat = sensor.getQuaternion();
     // using "pyteaplot"
     Serial.println("w"+(String)quat.getW() + "wa" + (String)quat.getX() + "ab"
-       + (String)quat.getY() + "bc" + quat.getZ() + "c");
+                   + (String)quat.getY() + "bc" + quat.getZ() + "c");
 
 }

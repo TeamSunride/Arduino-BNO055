@@ -47,7 +47,7 @@ bool BNO055::setPowerMode(BNO055_POWER_MODE mode) {
 
 
     // default to normal mode if an incorrect input is made
-    if(mode > SUSPEND || mode < NORMAL)
+    if (mode > SUSPEND || mode < NORMAL)
         mode = NORMAL;
 
     bool writeResult = writeRegister(BNO055_PWR_MODE_REG, (int) mode);
@@ -191,17 +191,17 @@ Vector<int16_t> BNO055::getVector(byte offset) {
     memset(buffer, 0, 6);
     readMultipleRegisters(buffer, offset, 6);
 
-    vector.setX(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8));
-    vector.setY(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8));
-    vector.setZ(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8));
+    vector.setX(((int16_t) buffer[0]) | (((int16_t) buffer[1]) << 8));
+    vector.setY(((int16_t) buffer[2]) | (((int16_t) buffer[3]) << 8));
+    vector.setZ(((int16_t) buffer[4]) | (((int16_t) buffer[5]) << 8));
     return vector;
 }
 
 Vector<int16_t> BNO055::getVector(byte *buffer, int startIndex) {
     Vector<int16_t> vector{};
-    vector.setX(((int16_t)buffer[startIndex+0]) | (((int16_t)buffer[startIndex+1]) << 8));
-    vector.setY(((int16_t)buffer[startIndex+2]) | (((int16_t)buffer[startIndex+3]) << 8));
-    vector.setZ(((int16_t)buffer[startIndex+4]) | (((int16_t)buffer[startIndex+5]) << 8));
+    vector.setX(((int16_t) buffer[startIndex + 0]) | (((int16_t) buffer[startIndex + 1]) << 8));
+    vector.setY(((int16_t) buffer[startIndex + 2]) | (((int16_t) buffer[startIndex + 3]) << 8));
+    vector.setZ(((int16_t) buffer[startIndex + 4]) | (((int16_t) buffer[startIndex + 5]) << 8));
     return vector;
 }
 
@@ -240,5 +240,40 @@ bool BNO055::setMagnetometerConfig(byte value) {
     bool result3 = setPageID(0);
     return result1 && result2 && result3;
 }
+
+Vector<double> BNO055::getLinearAcceleration() {
+    Vector<int16_t> linearAccel = getVector(BNO055_LIA_DATA_X_LSB);
+    return linearAccel.divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+}
+
+Quaternion BNO055::getQuaternion() {
+    Quaternion quat;
+    byte buffer[8];
+    memset(buffer, 0, 8);
+    int16_t w, x, y, z;
+    readMultipleRegisters(buffer, BNO055_QUA_DATA_W_LSB, 8);
+    w = (((int16_t) buffer[0]) | (((int16_t) buffer[1]) << 8));
+    x = (((int16_t) buffer[2]) | (((int16_t) buffer[3]) << 8));
+    y = (((int16_t) buffer[4]) | (((int16_t) buffer[5]) << 8));
+    z = (((int16_t) buffer[6]) | (((int16_t) buffer[7]) << 8));
+    quat.setW((double)w / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setX(x / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setY(y / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setZ(z / BNO055_QUAT_CONVERSION_FACTOR);
+    return quat;
+}
+
+Vector<double> BNO055::getEuler() {
+    Vector<int16_t> eulerAngles = getVector(BNO055_EUL_HEADING_LSB);
+    return eulerAngles.divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
+}
+
+Vector<double> BNO055::getGravity() {
+    Vector<int16_t> gravity = getVector(BNO055_GRV_DATA_X_LSB);
+    return gravity.divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+}
+
+
+
 
 

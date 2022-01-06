@@ -8,7 +8,7 @@
 
 // Comments in this file are not mine and are taken from the BNO055 datasheet
 
-#include "Vector.h"
+#include "util/Vector.h"
 
 typedef struct {
     Vector<double> accel;
@@ -179,6 +179,8 @@ NDOF_FMC_OFF fusion mode.
 #define BNO055_GYR_DATA_Z_LSB       0x18
 #define BNO055_GYR_DATA_Z_MSB       0x19
 
+#define BNO055_EUL_HEADING_LSB      0x1A
+#define BNO055_EUL_HEADING_MSB      0x1B
 #define BNO055_EUL_ROLL_LSB         0x1C
 #define BNO055_EUL_ROLL_MSB         0x1D
 #define BNO055_EUL_PITCH_LSB        0x1E
