@@ -10,6 +10,18 @@
 
 #include "util/Vector.h"
 
+/**
+ * Each unsigned integer represents the calibration status of a sensor.
+ * 3 indicates fully calibrated, 0 indicates not calibrated.
+ * Refer to section 3.10 of the datasheet
+ */
+typedef struct {
+    uint8_t accel;
+    uint8_t gyro;
+    uint8_t mag;
+    uint8_t sys;
+} bno055_calib_stat_t;
+
 typedef struct {
     Vector<double> accel;
     Vector<double> mag;

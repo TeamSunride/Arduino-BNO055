@@ -273,6 +273,16 @@ Vector<double> BNO055::getGravity() {
     return gravity.divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
 }
 
+bno055_calib_stat_t BNO055::getCalibrationStatus() {
+    byte result = readRegister(BNO055_CALIB_STAT);
+
+    bno055_calib_stat_t status;
+    status.mag = result & 0b00000011;
+    status.accel = (result >> 2) & 0b11;
+    status.gyro = (result >> 4) & 0b11;
+    status.sys = (result >> 6) & 0b11;
+    return status;
+}
 
 
 

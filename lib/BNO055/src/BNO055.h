@@ -163,6 +163,8 @@ public:
      */
     bool setMagnetometerConfig(byte value);
 
+    bno055_calib_stat_t getCalibrationStatus();
+
 private:
     int BNO055_ACCEL_CONVERSION_FACTOR = 100;
     int BNO055_MAG_CONVERSION_FACTOR = 16;

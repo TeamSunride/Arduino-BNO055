@@ -118,11 +118,34 @@ void test_BNO055_sensor_config() {
     TEST_ASSERT_EQUAL(0b00011111, sensor.readRegister(BNO055_MAG_CONFIG));
 
     sensor.setPageID(0);
+}
 
+void test_BNO055_calibration() {
+    sensor.resetSystem();
+    sensor.setOperationMode(NDOF); // enter a sensor fusion mode so calibration happens
+    bno055_calib_stat_t status = sensor.getCalibrationStatus();
+    TEST_ASSERT_EQUAL(0, status.gyro);
+    delay(2000); // give time for the gyroscope to calibrate (assumes still on flat surface)
+    status = sensor.getCalibrationStatus();
+    TEST_ASSERT_EQUAL_MESSAGE(3, status.gyro,
+                              "Make sure that the sensor is tested whilst stood still on a flat surface");
+
+    /*
+    Serial.println("Sensor Calibration Status");
+    unsigned long startTime = millis();
+    while ((millis() - startTime) / 1000 < 120) {
+        status = sensor.getCalibrationStatus();
+
+        Serial.println(
+                "mag=" + (String) status.mag +
+                ", accel=" + (String) status.accel +
+                ", gyro=" + (String) status.gyro +
+                ", sys=" + (String) status.sys);
+    }
+     */
 }
 
 void setup() {
-    delay(3000);
     UNITY_BEGIN();
     Wire.begin();
 
@@ -134,6 +157,7 @@ void setup() {
     RUN_TEST(test_BNO055_sensor_config);
 
     RUN_TEST(test_BNO055_ACCONLY);
+    RUN_TEST(test_BNO055_calibration);
 
     UNITY_END();
 }
