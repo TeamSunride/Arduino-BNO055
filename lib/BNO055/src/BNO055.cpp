@@ -284,6 +284,37 @@ bno055_calib_stat_t BNO055::getCalibrationStatus() {
     return status;
 }
 
+bool BNO055::Interrupt::editInterruptState(byte offset, int bitLocation, bool bitValue) {
+    sensor->setPageID(1);
+    byte state = sensor->readRegister(offset);
+    bitWrite(state, bitLocation, (int) bitValue);
+    bool result = sensor->writeRegister(offset, state);
+    sensor->setPageID(0);
+    return result;
+}
 
+bool BNO055::Interrupt::enable() {
+    return editInterruptState(BNO055_INT_EN, ENABLE_BIT, true);
+}
 
+bool BNO055::Interrupt::disable() {
+    return editInterruptState(BNO055_INT_EN, ENABLE_BIT, false);
+}
 
+bool BNO055::Interrupt::mask() {
+    pinMode(pin, INPUT_PULLDOWN);
+    attachInterrupt(digitalPinToInterrupt(pin), *callback, RISING);
+    return editInterruptState(BNO055_INT_MSK, MASK_BIT, true);
+}
+
+bool BNO055::Interrupt::unmask() {
+    return editInterruptState(BNO055_INT_MSK, MASK_BIT, false);
+}
+
+byte BNO055::Interrupt::AxisSetting::get() {
+    byte result = 0b000;
+    bitWrite(result, 2, z);
+    bitWrite(result, 1, y);
+    bitWrite(result, 0, x);
+    return result;
+}

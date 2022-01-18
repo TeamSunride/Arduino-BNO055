@@ -15,7 +15,7 @@
 
 class BNO055 : public I2CDevice {
 public:
-    using I2CDevice::I2CDevice;  // inherit the constructor from I2CDevice
+    using I2CDevice::I2CDevice;
     bool begin();
 
     /**
@@ -165,6 +165,52 @@ public:
 
     bno055_calib_stat_t getCalibrationStatus();
 
+    class Interrupt {
+
+    public:
+        class AxisSetting {
+
+        public:
+            bool x = false;
+            bool y = false;
+            bool z = false;;
+
+            AxisSetting enableX() { x = true; return *this; }
+            AxisSetting enableY() { y = true; return *this; };
+            AxisSetting enableZ() { z = true; return *this; };
+
+            AxisSetting disableX() { x = false; return *this; };
+            AxisSetting disableY() { y = false; return *this; };
+            AxisSetting disableZ() { z = false; return *this; };
+
+            byte get();
+        };
+        bool editInterruptState(byte offset, int bit, bool value);
+    protected:
+        int ENABLE_BIT;
+        int MASK_BIT;
+        BNO055 *sensor;
+        void (*callback)();
+        int pin;
+    public:
+        Interrupt(BNO055 &bno055, int enableBit, int maskBit, void (*callback0)(), int pin0) {
+            ENABLE_BIT = enableBit;
+            MASK_BIT = maskBit;
+            sensor = &bno055;
+            callback = callback0;
+            pin = pin0;
+        }
+
+        // to be inherited by subclasses
+        static bool setup() { return false; }
+
+        bool enable();
+        bool disable();
+
+        bool mask();
+        bool unmask();
+    };
+
 private:
     int BNO055_ACCEL_CONVERSION_FACTOR = 100;
     int BNO055_MAG_CONVERSION_FACTOR = 16;
@@ -173,7 +219,38 @@ private:
     Vector<int16_t> getVector(byte offset);
     Vector<int16_t> getVector(byte buffer[], int startIndex);
     BNO055_OPERATION_MODE currentOperationMode = CONFIGMODE;
+
+public:
+
+    class AccelHighGInterrupt : public BNO055::Interrupt {
+    private:
+        byte duration;
+        byte threshold;
+        AxisSetting axisSetting{};
+    public:
+        AccelHighGInterrupt(BNO055 bno055, BNO055::Interrupt::AxisSetting axisSetting0,
+                            void (*callback0)(), int pin,
+                            byte duration0 = 0b1111, // default value from datasheet
+                            byte threshold0 = 0b11000000  // default value from datasheet
+                            ) : Interrupt(bno055, 5, 5, callback0, pin)
+        {
+            duration = duration0;
+            threshold = threshold0;
+            axisSetting = axisSetting0;
+        }
+
+        bool setup() {
+            sensor->setPageID(1);
+            bool result = sensor->writeRegister(BNO055_ACC_HG_DURATION, duration) &&
+                          sensor->writeRegister(BNO055_ACC_HG_THRES, threshold) &&
+                          sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axisSetting.get() << 5);
+            sensor->setPageID(0);
+            return result;
+        }
+    };
 };
+
+
 
 
 #endif //BNO055_H
