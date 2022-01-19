@@ -284,6 +284,10 @@ bno055_calib_stat_t BNO055::getCalibrationStatus() {
     return status;
 }
 
+bool BNO055::clearInterrupt() {
+    return writeRegister(BNO055_SYS_TRIGGER, 0b01000000);
+}
+
 bool BNO055::Interrupt::editInterruptState(byte offset, int bitLocation, bool bitValue) {
     sensor->setPageID(1);
     byte state = sensor->readRegister(offset);

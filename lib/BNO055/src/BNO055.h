@@ -165,6 +165,8 @@ public:
 
     bno055_calib_stat_t getCalibrationStatus();
 
+    bool clearInterrupt();
+
     /**
      * Class to be inherited by implementations of the various interrupts offered by the
      * BNO055. Refer to section 3.7 of the datasheet.
