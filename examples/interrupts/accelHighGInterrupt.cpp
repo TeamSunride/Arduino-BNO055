@@ -17,10 +17,11 @@ void myCallback() {
 }
 
 void setup() {
-    // reset the sensor to remove any existing configuration
-    sensor.resetSystem();
     // begin I2C communication
     Wire.begin();
+
+    // reset the sensor to remove any existing configuration
+    sensor.resetSystem();
 
     // we need to be in configmode to set up the interrupt.
     // this is not necessary as we just called sensor#resetSystem however it is here for completeness

@@ -16,6 +16,7 @@
 class BNO055 : public I2CDevice {
 public:
     using I2CDevice::I2CDevice;
+
     bool begin();
 
     /**
@@ -36,6 +37,7 @@ public:
      * @return Whether writing the new mode to the OPR_MODE register was successful
      */
     bool setOperationMode(BNO055_OPERATION_MODE mode);
+
     /**
      * @return The current BNO055_OPERATION_MODE that the sensor is in
      */
@@ -214,13 +216,35 @@ public:
             bool y = false;
             bool z = false;;
 
-            AxesSetting enableX() { x = true; return *this; }
-            AxesSetting enableY() { y = true; return *this; };
-            AxesSetting enableZ() { z = true; return *this; };
+            AxesSetting enableX() {
+                x = true;
+                return *this;
+            }
 
-            AxesSetting disableX() { x = false; return *this; };
-            AxesSetting disableY() { y = false; return *this; };
-            AxesSetting disableZ() { z = false; return *this; };
+            AxesSetting enableY() {
+                y = true;
+                return *this;
+            };
+
+            AxesSetting enableZ() {
+                z = true;
+                return *this;
+            };
+
+            AxesSetting disableX() {
+                x = false;
+                return *this;
+            };
+
+            AxesSetting disableY() {
+                y = false;
+                return *this;
+            };
+
+            AxesSetting disableZ() {
+                z = false;
+                return *this;
+            };
 
             byte get();
         };
@@ -238,20 +262,24 @@ public:
          * detected.
          * @param pin0 The digital pin of the microcontroller to assign this interrupt to.
          */
-        Interrupt(BNO055 &bno055, int enableBit, int maskBit, void (*callback0)(), int pin0) {
+        Interrupt(BNO055 &bno055, int enableBit, int maskBit, AxesSetting axesSetting0, void (*callback0)(), int pin0) {
             ENABLE_BIT = enableBit;
             MASK_BIT = maskBit;
             sensor = &bno055;
             callback = callback0;
             pin = pin0;
+            axesSetting = axesSetting0;
         }
 
     protected:
         int ENABLE_BIT;
         int MASK_BIT;
         BNO055 *sensor;
+
         void (*callback)();
+
         int pin;
+        AxesSetting axesSetting;
     private:
         /**
          * Helper function to aid configuration of Interrupts
@@ -268,8 +296,11 @@ private:
     int BNO055_MAG_CONVERSION_FACTOR = 16;
     int BNO055_GYRO_CONVERSION_FACTOR = 16;
     double BNO055_QUAT_CONVERSION_FACTOR = 1 << 14;
+
     Vector<int16_t> getVector(byte offset);
+
     Vector<int16_t> getVector(byte buffer[], int startIndex);
+
     BNO055_OPERATION_MODE currentOperationMode = CONFIGMODE;
 
 public:
@@ -282,7 +313,6 @@ public:
     private:
         byte duration;
         byte threshold;
-        AxesSetting axesSetting{};
     public:
         /**
          * Create a new interrupt object. This does not write the new configuration to the BNO055. In order
@@ -301,8 +331,7 @@ public:
                 void (*callback0)(), int pin,
                 byte duration0 = 0b1111, // default value from datasheet
                 byte threshold0 = 0b11000000  // default value from datasheet
-                            ) : Interrupt(bno055, 5, 5, callback0, pin)
-        {
+        ) : Interrupt(bno055, 5, 5, axesSetting0, callback0, pin) {
             duration = duration0;
             threshold = threshold0;
             axesSetting = axesSetting0;
@@ -321,9 +350,46 @@ public:
             return result;
         }
     };
+
+    /**
+     * Implements the slow/no motion interrupt. WARNING: I could not get this one working
+     * properly.
+     */
+    class AccelSlowNoMotionInterrupt : public BNO055::Interrupt {
+    private:
+        byte threshold;
+        byte duration;
+        bool mode;
+    public:
+        AccelSlowNoMotionInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::AxesSetting axesSetting0,
+                void (*callback0)(), int pin,
+                byte duration0 = 0b101, // default value from datasheet
+                byte threshold0 = 0b1010, // default value from datasheet
+                bool mode0 = true // default value from datasheet
+                ) : Interrupt(bno055,7,7,
+                                        axesSetting0, callback0, pin) {
+            duration = duration0;
+            threshold = threshold0;
+            mode = mode0;
+        }
+
+        bool setup() {
+            byte setting = 0b01111111 & (duration << 1 | mode);
+            sensor->setPageID(1);
+            bool result =
+                    // write threshold setting
+                    sensor->writeRegister(BNO055_ACC_NM_THRES, threshold) &&
+                    // write duration and mode setting
+                    sensor->writeRegister(BNO055_ACC_NM_SET, setting) &&
+                    // write axes setting
+                    sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axesSetting.get() << 2);
+            sensor->setPageID(0);
+            return result;
+        }
+    };
 };
-
-
 
 
 #endif //BNO055_H

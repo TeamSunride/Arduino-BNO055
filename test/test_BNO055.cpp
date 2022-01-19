@@ -183,9 +183,54 @@ void test_BNO055_highGinterrupt() {
     TEST_ASSERT_TRUE_MESSAGE(interruptReceived, "The interrupt either didn't work or you didn't move the sensor");
 }
 
+void test_BNO055_slowNoMotionInterrupt() {
+    sensor.resetSystem();
+    interruptReceived = false;
+
+    byte duration = 0b101;
+    byte threshold = 0b1010;
+    bool mode = true;
+
+    BNO055::Interrupt::AxesSetting axesSetting =
+            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ();
+
+    BNO055::AccelSlowNoMotionInterrupt slowNoMotionInterrupt(
+            sensor,
+            axesSetting,
+            markInterruptReceived,
+            2, duration, threshold, mode);
+
+    TEST_ASSERT_TRUE(slowNoMotionInterrupt.setup());
+
+    // test that config was set as expected
+    sensor.setPageID(1);
+    TEST_ASSERT_EQUAL(duration, 0b111111 & sensor.readRegister(BNO055_ACC_NM_SET) >> 1);
+    TEST_ASSERT_EQUAL(threshold, sensor.readRegister(BNO055_ACC_NM_THRES));
+    TEST_ASSERT_EQUAL(mode, sensor.readRegister(BNO055_ACC_NM_SET) & 0b1);
+    TEST_ASSERT_EQUAL(axesSetting.get(), sensor.readRegister(BNO055_ACC_INT_SETTINGS) >> 2);
+    sensor.setPageID(0);
+
+    TEST_ASSERT_TRUE(slowNoMotionInterrupt.enable());
+    TEST_ASSERT_TRUE(slowNoMotionInterrupt.mask());
+
+    sensor.setPageID(1);
+    TEST_ASSERT_EQUAL(0b10000000, sensor.readRegister(BNO055_INT_EN) & 0b11101100);
+    TEST_ASSERT_EQUAL(0b10000000, sensor.readRegister(BNO055_INT_MSK) & 0b11101100);
+    sensor.setPageID(0);
+    // end config testing
+
+    sensor.setOperationMode(ACCONLY);
+
+    Serial.println("Please accelerate the sensor harshly");
+    delay(15000);
+    TEST_ASSERT_TRUE_MESSAGE(interruptReceived, "The interrupt either didn't work or you didn't move the sensor");
+}
+
 void setup() {
     UNITY_BEGIN();
     Wire.begin();
+
+    // RUN_TEST(test_BNO055_slowNoMotionInterrupt);
 
     RUN_TEST(test_BNO055_begin);
     RUN_TEST(test_BNO055_OperationMode);
