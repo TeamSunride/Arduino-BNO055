@@ -311,10 +311,22 @@ bool BNO055::Interrupt::unmask() {
     return editInterruptState(BNO055_INT_MSK, MASK_BIT, false);
 }
 
-byte BNO055::Interrupt::AxisSetting::get() {
+byte BNO055::Interrupt::AxesSetting::get() {
     byte result = 0b000;
     bitWrite(result, 2, z);
     bitWrite(result, 1, y);
     bitWrite(result, 0, x);
     return result;
+}
+
+BNO055::AccelHighGInterrupt::AccelHighGInterrupt(
+        BNO055 bno055,
+        BNO055::Interrupt::AxesSetting axesSetting0,
+        void (*callback0)(),
+        int pin, byte duration0,
+        byte threshold0) : Interrupt(bno055, 5, 5, callback0, pin)
+{
+    duration = duration0;
+    threshold = threshold0;
+    axesSetting = axesSetting0;
 }

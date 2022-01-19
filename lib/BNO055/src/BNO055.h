@@ -165,34 +165,73 @@ public:
 
     bno055_calib_stat_t getCalibrationStatus();
 
+    /**
+     * Class to be inherited by implementations of the various interrupts offered by the
+     * BNO055. Refer to section 3.7 of the datasheet.
+     */
     class Interrupt {
 
     public:
-        class AxisSetting {
+
+        /**
+         * Enable this Interrupt. This means that Interrupt occurences will be written to the
+         * INT_STA register
+         * @return Whether the operation was successful
+         */
+        bool enable();
+
+        /**
+         * Disable this Interrupt.
+         * @return Whether the operation was successful
+         */
+        bool disable();
+
+        /**
+         * Interrupts can be routed to the INT pin by calling this function.
+         * @return Whether the operation was successful
+         */
+        bool mask();
+
+        /**
+         * Stop routing this interrupt to the INT pin.
+         * @return Whether the operation was successful
+         */
+        bool unmask();
+
+        /**
+         * An object to aid enabling/disabling the axes regarding Interrupts
+         */
+        class AxesSetting {
 
         public:
             bool x = false;
             bool y = false;
             bool z = false;;
 
-            AxisSetting enableX() { x = true; return *this; }
-            AxisSetting enableY() { y = true; return *this; };
-            AxisSetting enableZ() { z = true; return *this; };
+            AxesSetting enableX() { x = true; return *this; }
+            AxesSetting enableY() { y = true; return *this; };
+            AxesSetting enableZ() { z = true; return *this; };
 
-            AxisSetting disableX() { x = false; return *this; };
-            AxisSetting disableY() { y = false; return *this; };
-            AxisSetting disableZ() { z = false; return *this; };
+            AxesSetting disableX() { x = false; return *this; };
+            AxesSetting disableY() { y = false; return *this; };
+            AxesSetting disableZ() { z = false; return *this; };
 
             byte get();
         };
-        bool editInterruptState(byte offset, int bit, bool value);
-    protected:
-        int ENABLE_BIT;
-        int MASK_BIT;
-        BNO055 *sensor;
-        void (*callback)();
-        int pin;
-    public:
+
+        /**
+         * @param bno055 A reference to an instantiated BNO055 object. Used to communicate with
+         * the various registers involved with interrupts.
+         * @param enableBit The register INT_EN contains bits which enable/disable the different
+         * available interrupts. This parameter specifies the location of the bit that describes
+         * whether this Interrupt is enabled.
+         * @param maskBit Interrupts can be routed to the INT pin by setting the corresponding
+         * interrupt bit in the INT_MSK register. This parameter specified the location of this
+         * interrupt bit.
+         * @param callback0 The ISR (Interrupt Service Routine) to run when an interrupt is
+         * detected.
+         * @param pin0 The digital pin of the microcontroller to assign this interrupt to.
+         */
         Interrupt(BNO055 &bno055, int enableBit, int maskBit, void (*callback0)(), int pin0) {
             ENABLE_BIT = enableBit;
             MASK_BIT = maskBit;
@@ -201,14 +240,21 @@ public:
             pin = pin0;
         }
 
-        // to be inherited by subclasses
-        static bool setup() { return false; }
-
-        bool enable();
-        bool disable();
-
-        bool mask();
-        bool unmask();
+    protected:
+        int ENABLE_BIT;
+        int MASK_BIT;
+        BNO055 *sensor;
+        void (*callback)();
+        int pin;
+    private:
+        /**
+         * Helper function to aid configuration of Interrupts
+         * @param offset The location of the register to edit
+         * @param bit The bit to change
+         * @param value The new value to set the bit to
+         * @return Whether the write was successful
+         */
+        bool editInterruptState(byte offset, int bit, bool value);
     };
 
 private:
@@ -222,28 +268,44 @@ private:
 
 public:
 
+    /**
+     * Object that implements the High-G interrupt as specified in section 3.7.2.3
+     * of the Datasheet.
+     */
     class AccelHighGInterrupt : public BNO055::Interrupt {
     private:
         byte duration;
         byte threshold;
-        AxisSetting axisSetting{};
+        AxesSetting axesSetting{};
     public:
-        AccelHighGInterrupt(BNO055 bno055, BNO055::Interrupt::AxisSetting axisSetting0,
-                            void (*callback0)(), int pin,
-                            byte duration0 = 0b1111, // default value from datasheet
-                            byte threshold0 = 0b11000000  // default value from datasheet
-                            ) : Interrupt(bno055, 5, 5, callback0, pin)
-        {
-            duration = duration0;
-            threshold = threshold0;
-            axisSetting = axisSetting0;
-        }
+        /**
+         * Create a new interrupt object. This does not write the new configuration to the BNO055. In order
+         * to write the new configuration to the sensor, use AccelHighGInterrupt#setup()
+         * @param bno055 A reference to the instantiated sensor object. Used to communicate with the sensor.
+         * @param axesSetting0 a BNO055::Interrupt::AxesSetting object
+         * @param callback0 The ISR (Interrupt Service Routine) to run when an interrupt is
+         * detected.
+         * @param pin The digital pin of the microcontroller to assign this interrupt to.
+         * @param duration0 The value to write to the ACC_HG_DURATION register.
+         * @param threshold0 The value to write to the ACC_HG_THRES register.
+         */
+        AccelHighGInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::AxesSetting axesSetting0,
+                void (*callback0)(), int pin,
+                byte duration0 = 0b1111, // default value from datasheet
+                byte threshold0 = 0b11000000  // default value from datasheet
+                            );
 
+        /**
+         * Write the new configuration to the sensor.
+         * @return Whether the write was successful
+         */
         bool setup() {
             sensor->setPageID(1);
             bool result = sensor->writeRegister(BNO055_ACC_HG_DURATION, duration) &&
                           sensor->writeRegister(BNO055_ACC_HG_THRES, threshold) &&
-                          sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axisSetting.get() << 5);
+                          sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axesSetting.get() << 5);
             sensor->setPageID(0);
             return result;
         }
