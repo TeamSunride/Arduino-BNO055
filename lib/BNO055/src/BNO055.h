@@ -295,7 +295,12 @@ public:
                 void (*callback0)(), int pin,
                 byte duration0 = 0b1111, // default value from datasheet
                 byte threshold0 = 0b11000000  // default value from datasheet
-                            );
+                            ) : Interrupt(bno055, 5, 5, callback0, pin)
+        {
+            duration = duration0;
+            threshold = threshold0;
+            axesSetting = axesSetting0;
+        }
 
         /**
          * Write the new configuration to the sensor.

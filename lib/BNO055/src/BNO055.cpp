@@ -318,15 +318,3 @@ byte BNO055::Interrupt::AxesSetting::get() {
     bitWrite(result, 0, x);
     return result;
 }
-
-BNO055::AccelHighGInterrupt::AccelHighGInterrupt(
-        BNO055 bno055,
-        BNO055::Interrupt::AxesSetting axesSetting0,
-        void (*callback0)(),
-        int pin, byte duration0,
-        byte threshold0) : Interrupt(bno055, 5, 5, callback0, pin)
-{
-    duration = duration0;
-    threshold = threshold0;
-    axesSetting = axesSetting0;
-}
