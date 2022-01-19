@@ -361,13 +361,17 @@ public:
         byte duration;
         bool mode;
     public:
+        enum MODE {
+            SLOW_MOTION = false,
+            NO_MOTION = true
+        };
         AccelSlowNoMotionInterrupt(
                 BNO055 bno055,
                 BNO055::Interrupt::AxesSetting axesSetting0,
                 void (*callback0)(), int pin,
+                MODE mode0 = NO_MOTION, // default value from datasheet
                 byte duration0 = 0b101, // default value from datasheet
-                byte threshold0 = 0b1010, // default value from datasheet
-                bool mode0 = true // default value from datasheet
+                byte threshold0 = 0b1010 // default value from datasheet
                 ) : Interrupt(bno055,7,7,
                                         axesSetting0, callback0, pin) {
             duration = duration0;

@@ -189,7 +189,8 @@ void test_BNO055_slowNoMotionInterrupt() {
 
     byte duration = 0b101;
     byte threshold = 0b1010;
-    bool mode = true;
+    BNO055::AccelSlowNoMotionInterrupt::MODE mode =
+            BNO055::AccelSlowNoMotionInterrupt::SLOW_MOTION;
 
     BNO055::Interrupt::AxesSetting axesSetting =
             (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ();
@@ -198,7 +199,7 @@ void test_BNO055_slowNoMotionInterrupt() {
             sensor,
             axesSetting,
             markInterruptReceived,
-            2, duration, threshold, mode);
+            2,mode, duration, threshold);
 
     TEST_ASSERT_TRUE(slowNoMotionInterrupt.setup());
 
@@ -230,8 +231,6 @@ void setup() {
     UNITY_BEGIN();
     Wire.begin();
 
-    // RUN_TEST(test_BNO055_slowNoMotionInterrupt);
-
     RUN_TEST(test_BNO055_begin);
     RUN_TEST(test_BNO055_OperationMode);
     RUN_TEST(test_BNO055_PowerMode);
@@ -243,6 +242,7 @@ void setup() {
     RUN_TEST(test_BNO055_calibration);
 
     RUN_TEST(test_BNO055_highGinterrupt);
+    RUN_TEST(test_BNO055_slowNoMotionInterrupt);
 
     UNITY_END();
 }

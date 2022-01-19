@@ -13,7 +13,7 @@ BNO055 sensor(I2C_ADDRESS, &Wire);
 int n = 0;
 
 void myCallback() {
-    // digitalWrite(3, !digitalRead(3));
+    digitalWrite(3, !digitalRead(3));
     n++;
 }
 
@@ -30,7 +30,7 @@ void setup() {
             sensor,
             (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ(),
             myCallback,
-            2);
+            2, BNO055::AccelSlowNoMotionInterrupt::SLOW_MOTION);
     slowNoMotionInterrupt.setup();
     slowNoMotionInterrupt.enable();
     slowNoMotionInterrupt.mask();

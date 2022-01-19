@@ -30,7 +30,7 @@ void setup() {
             sensor,
             (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ(),
             myCallback,
-            2, BNO055::AccelSlowNoMotionInterrupt::SLOW_MOTION);
+            2, BNO055::AccelSlowNoMotionInterrupt::NO_MOTION);
     slowNoMotionInterrupt.setup();
     slowNoMotionInterrupt.enable();
     slowNoMotionInterrupt.mask();
