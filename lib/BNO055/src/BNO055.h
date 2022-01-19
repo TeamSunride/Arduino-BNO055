@@ -165,6 +165,10 @@ public:
 
     bno055_calib_stat_t getCalibrationStatus();
 
+    /**
+     * Clear the current interrupt, making the interrupt pin go low
+     * @return Whether the write was successful
+     */
     bool clearInterrupt();
 
     /**

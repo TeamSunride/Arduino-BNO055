@@ -145,6 +145,44 @@ void test_BNO055_calibration() {
      */
 }
 
+volatile bool interruptReceived = false;
+
+void markInterruptReceived() {
+    interruptReceived = true;
+}
+
+void test_BNO055_highGinterrupt() {
+    sensor.resetSystem();
+    interruptReceived = false;
+
+    byte duration = 0b1111;
+    byte threshold = 0b11000000;
+    BNO055::Interrupt::AxesSetting axesSetting =
+            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ();
+
+    BNO055::AccelHighGInterrupt accelHighGInterrupt(
+            sensor,
+            axesSetting,
+            markInterruptReceived,
+            2, duration, threshold);
+    TEST_ASSERT_TRUE(accelHighGInterrupt.setup());
+    sensor.setPageID(1);
+    // test that the duration register was set properly
+    TEST_ASSERT_EQUAL(duration, sensor.readRegister(BNO055_ACC_HG_DURATION));
+    // test that the threshold register was set properly
+    TEST_ASSERT_EQUAL(threshold, sensor.readRegister(BNO055_ACC_HG_THRES));
+    // set that the desired axes setting was set properly
+    TEST_ASSERT_EQUAL(axesSetting.get(), sensor.readRegister(BNO055_ACC_INT_SETTINGS) >> 5);
+    sensor.setPageID(0);
+
+    TEST_ASSERT_TRUE(accelHighGInterrupt.enable());
+    TEST_ASSERT_TRUE(accelHighGInterrupt.mask());
+    sensor.setOperationMode(ACCONLY);
+    Serial.println("Please accelerate the sensor harshly");
+    delay(5000);
+    TEST_ASSERT_TRUE_MESSAGE(interruptReceived, "The interrupt either didn't work or you didn't move the sensor");
+}
+
 void setup() {
     UNITY_BEGIN();
     Wire.begin();
@@ -158,6 +196,8 @@ void setup() {
 
     RUN_TEST(test_BNO055_ACCONLY);
     RUN_TEST(test_BNO055_calibration);
+
+    RUN_TEST(test_BNO055_highGinterrupt);
 
     UNITY_END();
 }
