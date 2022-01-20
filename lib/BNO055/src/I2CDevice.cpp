@@ -47,3 +47,16 @@ void I2CDevice::readMultipleRegisters(uint8_t *outputPointer, uint8_t offset, ui
         externalSpacePointer++;
     }
 }
+
+bool I2CDevice::writeMultipleRegisters(byte *buffer, byte offset, byte length) {
+    pipe->beginTransmission(address);
+    pipe->write(offset);
+
+    byte bytesWritten = 0;
+    while (bytesWritten < length) {
+        pipe->write(*buffer);
+        buffer++;
+        bytesWritten++;
+    }
+    return pipe->endTransmission() == 0; // 0 means success
+}

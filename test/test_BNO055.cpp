@@ -157,8 +157,8 @@ void test_BNO055_highGinterrupt() {
 
     byte duration = 0b1111;
     byte threshold = 0b11000000;
-    BNO055::Interrupt::AxesSetting axesSetting =
-            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ();
+    BNO055::Interrupt::EnabledAxes axesSetting =
+            (new BNO055::Interrupt::EnabledAxes)->enableX().enableY().enableZ();
 
     BNO055::AccelHighGInterrupt accelHighGInterrupt(
             sensor,
@@ -172,7 +172,7 @@ void test_BNO055_highGinterrupt() {
     // test that the threshold register was set properly
     TEST_ASSERT_EQUAL(threshold, sensor.readRegister(BNO055_ACC_HG_THRES));
     // set that the desired axes setting was set properly
-    TEST_ASSERT_EQUAL(axesSetting.get(), sensor.readRegister(BNO055_ACC_INT_SETTINGS) >> 5);
+    TEST_ASSERT_EQUAL(axesSetting.getEnabledAxes(), sensor.readRegister(BNO055_ACC_INT_SETTINGS) >> 5);
     sensor.setPageID(0);
 
     TEST_ASSERT_TRUE(accelHighGInterrupt.enable());
@@ -192,8 +192,8 @@ void test_BNO055_slowNoMotionInterrupt() {
     BNO055::AccelSlowNoMotionInterrupt::MODE mode =
             BNO055::AccelSlowNoMotionInterrupt::SLOW_MOTION;
 
-    BNO055::Interrupt::AxesSetting axesSetting =
-            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ();
+    BNO055::Interrupt::EnabledAxes axesSetting =
+            (new BNO055::Interrupt::EnabledAxes)->enableX().enableY().enableZ();
 
     BNO055::AccelSlowNoMotionInterrupt slowNoMotionInterrupt(
             sensor,
@@ -208,7 +208,7 @@ void test_BNO055_slowNoMotionInterrupt() {
     TEST_ASSERT_EQUAL(duration, 0b111111 & sensor.readRegister(BNO055_ACC_NM_SET) >> 1);
     TEST_ASSERT_EQUAL(threshold, sensor.readRegister(BNO055_ACC_NM_THRES));
     TEST_ASSERT_EQUAL(mode, sensor.readRegister(BNO055_ACC_NM_SET) & 0b1);
-    TEST_ASSERT_EQUAL(axesSetting.get(), sensor.readRegister(BNO055_ACC_INT_SETTINGS) >> 2);
+    TEST_ASSERT_EQUAL(axesSetting.getEnabledAxes(), sensor.readRegister(BNO055_ACC_INT_SETTINGS) >> 2);
     sensor.setPageID(0);
 
     TEST_ASSERT_TRUE(slowNoMotionInterrupt.enable());
