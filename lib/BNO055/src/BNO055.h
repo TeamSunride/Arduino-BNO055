@@ -393,6 +393,34 @@ public:
             return result;
         }
     };
+
+    class AccelAnyMotionInterrupt : public Interrupt {
+    private:
+        byte threshold;
+        byte duration;
+    public:
+        AccelAnyMotionInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::AxesSetting axesSetting0,
+                void (*callback0)(),
+                int pin,
+                byte duration0 = 0b11,
+                byte threshold0 = 0b00010100 // default value from datasheet
+                ) : Interrupt(bno055,6,6,
+                              axesSetting0, callback0, pin) {
+            duration = duration0;
+            threshold = threshold0;
+        }
+
+        bool setup() {
+            if (duration > 4 || duration < 0) duration = 0;
+            sensor->setPageID(1);
+            bool result =
+                    sensor->writeRegister(BNO055_ACC_AM_THRES, threshold) &&
+                    sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axesSetting.get() << 2 | duration);
+            return result;
+        }
+    };
 };
 
 
