@@ -2,7 +2,7 @@
 
 ![](resources/BNO055.jpg)
 
-*image credit*
+*image credit: Adafruit*
 
 PlatformIO / Arduino library designed to make it easy to use 
 advanced features of the Bosch BNO055 IMU.
