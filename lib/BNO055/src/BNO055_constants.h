@@ -9,6 +9,7 @@
 // Comments in this file are not mine and are taken from the BNO055 datasheet
 
 #include "util/Vector.h"
+#include "util/Quaternion.h"
 
 /**
  * Each unsigned integer represents the calibration status of a sensor.
@@ -26,6 +27,11 @@ typedef struct {
     Vector<double> accel;
     Vector<double> mag;
     Vector<double> gyro;
+    Vector<double> linearAccel;
+    Vector<double> gravityVector;
+    Quaternion quaternion;
+    Vector<double> euler;
+
 } bno055_burst_t;
 
 enum BNO055_TEMP_SOURCE_TYPE {

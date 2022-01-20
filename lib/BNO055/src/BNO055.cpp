@@ -133,7 +133,7 @@ Vector<double> BNO055::getRawGyro() {
 
 bno055_burst_t BNO055::getAllData() {
     bno055_burst_t returnData;
-    byte buffer[30];
+    byte buffer[42];
     switch (currentOperationMode) {
         case ACCONLY:
             returnData.accel = getRawAcceleration();
@@ -169,18 +169,19 @@ bno055_burst_t BNO055::getAllData() {
             returnData.mag = getVector(buffer, 6).divideScalar(BNO055_MAG_CONVERSION_FACTOR);
             returnData.gyro = getVector(buffer, 12).divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
             break;
-        case IMU:
-            break;
-        case COMPASS:
-            break;
-        case M4G:
-            break;
-        case NDOF_FMC_OFF:
-            break;
-        case NDOF:
+        case IMU: case COMPASS: case M4G: case NDOF_FMC_OFF: case NDOF:
+            memset(buffer, 0, 42);
+            readMultipleRegisters(buffer, BNO055_ACC_DATA_X_LSB, 42);
+            returnData.accel = getVector(buffer, 0).divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+            returnData.mag = getVector(buffer, 6).divideScalar(BNO055_MAG_CONVERSION_FACTOR);
+            returnData.gyro = getVector(buffer, 12).divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
+            returnData.euler = getVector(buffer, 18).divideScalar(BNO055_GYRO_CONVERSION_FACTOR);
+            returnData.quaternion = getQuaternion(buffer, 24);
+            returnData.linearAccel = getVector(buffer, 32).divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
+            returnData.gravityVector = getVector(buffer, 36).divideScalar(BNO055_ACCEL_CONVERSION_FACTOR);
             break;
         default:
-            return returnData;
+            break;
     }
     return returnData;
 }
@@ -256,6 +257,20 @@ Quaternion BNO055::getQuaternion() {
     x = (((int16_t) buffer[2]) | (((int16_t) buffer[3]) << 8));
     y = (((int16_t) buffer[4]) | (((int16_t) buffer[5]) << 8));
     z = (((int16_t) buffer[6]) | (((int16_t) buffer[7]) << 8));
+    quat.setW(w / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setX(x / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setY(y / BNO055_QUAT_CONVERSION_FACTOR);
+    quat.setZ(z / BNO055_QUAT_CONVERSION_FACTOR);
+    return quat;
+}
+
+Quaternion BNO055::getQuaternion(const byte *buffer, int startIndex) const {
+    Quaternion quat{};
+    int16_t w, x, y, z;
+    w = (((int16_t) buffer[startIndex + 0]) | (((int16_t) buffer[startIndex + 1]) << 8));
+    x = (((int16_t) buffer[startIndex + 2]) | (((int16_t) buffer[startIndex + 3]) << 8));
+    y = (((int16_t) buffer[startIndex + 4]) | (((int16_t) buffer[startIndex + 5]) << 8));
+    z = (((int16_t) buffer[startIndex + 6]) | (((int16_t) buffer[startIndex + 7]) << 8));
     quat.setW(w / BNO055_QUAT_CONVERSION_FACTOR);
     quat.setX(x / BNO055_QUAT_CONVERSION_FACTOR);
     quat.setY(y / BNO055_QUAT_CONVERSION_FACTOR);

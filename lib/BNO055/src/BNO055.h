@@ -301,6 +301,8 @@ private:
 
     Vector<int16_t> getVector(byte buffer[], int startIndex);
 
+    Quaternion getQuaternion(const byte *buffer, int startIndex) const;
+
     BNO055_OPERATION_MODE currentOperationMode = CONFIGMODE;
 
 public:
