@@ -465,7 +465,7 @@ public:
                 void (*callback0)(),
                 int pin,
                 GyroHRAxes axesSetting0,
-                bool filterEnabled0
+                bool filterEnabled0 = false
                 ) : Interrupt(bno055, 3, 3,
                               enabledAxes0, callback0, pin) {
             axesSetting = axesSetting0;
@@ -488,6 +488,45 @@ public:
             bool result =
                     sensor->writeMultipleRegisters(buffer, BNO055_GYR_HR_X_SET, 6) &&
                     sensor->writeRegister(BNO055_GYR_INT_SETTING, newGyrIntSetting);
+            sensor->setPageID(0);
+            return result;
+        }
+    };
+
+    class GyroAnyMotionInterrupt : public Interrupt {
+    private:
+        bool filterEnabled;
+        byte threshold;
+        byte slopeSamples;
+        byte awakeDuration;
+    public:
+        GyroAnyMotionInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::EnabledAxes enabledAxes0,
+                void (*callback0)(),
+                int pin,
+                byte threshold0 = 0b100,
+                byte slopeSamples0 = 0b10,
+                byte awakeDuration0 = 0b10,
+                bool filterEnabled0 = false
+                ) : Interrupt(bno055, 2, 2,
+                              enabledAxes0, callback0, pin) {
+            threshold = threshold0;
+            slopeSamples = slopeSamples0;
+            awakeDuration = awakeDuration0;
+            filterEnabled = filterEnabled0;
+        }
+
+        bool setup() {
+            // filter and enabled axes settings
+            byte currentGyrIntSetting = sensor->readRegister(BNO055_GYR_INT_SETTING);
+            byte newGyrIntSetting = ((0b1 & filterEnabled) << 6) | (enabledAxes.getEnabledAxes())
+                    | (0b01000111 & currentGyrIntSetting);
+            sensor->setPageID(1);
+            bool result = sensor->writeRegister(BNO055_GYR_INT_SETTING, newGyrIntSetting) &&
+                    sensor->writeRegister(BNO055_GYR_AM_THRES, threshold) &&
+                    sensor->writeRegister(BNO055_GYR_AM_SET,
+                                          (0b00001111 & (((0b11 & awakeDuration) << 2) | (0b11 & slopeSamples))));
             sensor->setPageID(0);
             return result;
         }
