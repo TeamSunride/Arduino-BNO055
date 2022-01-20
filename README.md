@@ -38,6 +38,10 @@ config register by reading the datasheet.
 
 Refer to the [examples directory](examples)
 
+To run an example (in PlatformIO), modify platformio.ini to support your board/framework, and then run the following:
+
+    pio ci "examples/accgyro.cpp" --lib "." -c "platformio.ini"
+
 ### Read from accelerometer
 
 ```cpp
@@ -124,5 +128,14 @@ Refer to the [examples directory](examples) and also the [unit test](test/test_B
 
 The best way of understanding how things work is to [read the datasheet](datasheet.pdf)
 
+## Unit testing
 
+This project contains some automated unit tests that you can run to check that everything works.
+You need to do this with PlatformIO.
+
+If you aren't using a Teensy 4.1, modify the configuration in `platformio.ini`
+
+To run the unit tests, run ```pio test```
+
+![](resources/test_result.png)
 
