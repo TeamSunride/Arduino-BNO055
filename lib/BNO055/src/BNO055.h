@@ -108,7 +108,7 @@ public:
      *
      * Keep in mind that the sensor will not return tenperature data if not turned on.
      * Therefore make sure the sensor is enabled with the correct operation mode
-     * before trying to get its temperature
+     * before trying to getEnabledAxes its temperature
      * @return Temperature in degrees celsius
      */
     byte getTemp();
@@ -209,44 +209,44 @@ public:
         /**
          * An object to aid enabling/disabling the axes regarding Interrupts
          */
-        class AxesSetting {
+        class EnabledAxes {
 
         public:
             bool x = false;
             bool y = false;
-            bool z = false;;
+            bool z = false;
 
-            AxesSetting enableX() {
+            EnabledAxes enableX() {
                 x = true;
                 return *this;
             }
 
-            AxesSetting enableY() {
+            EnabledAxes enableY() {
                 y = true;
                 return *this;
             };
 
-            AxesSetting enableZ() {
+            EnabledAxes enableZ() {
                 z = true;
                 return *this;
             };
 
-            AxesSetting disableX() {
+            EnabledAxes disableX() {
                 x = false;
                 return *this;
             };
 
-            AxesSetting disableY() {
+            EnabledAxes disableY() {
                 y = false;
                 return *this;
             };
 
-            AxesSetting disableZ() {
+            EnabledAxes disableZ() {
                 z = false;
                 return *this;
             };
 
-            byte get();
+            byte getEnabledAxes();
         };
 
         /**
@@ -262,13 +262,13 @@ public:
          * detected.
          * @param pin0 The digital pin of the microcontroller to assign this interrupt to.
          */
-        Interrupt(BNO055 &bno055, int enableBit, int maskBit, AxesSetting axesSetting0, void (*callback0)(), int pin0) {
+        Interrupt(BNO055 &bno055, int enableBit, int maskBit, EnabledAxes enabledAxes0, void (*callback0)(), int pin0) {
             ENABLE_BIT = enableBit;
             MASK_BIT = maskBit;
             sensor = &bno055;
             callback = callback0;
             pin = pin0;
-            axesSetting = axesSetting0;
+            enabledAxes = enabledAxes0;
         }
 
     protected:
@@ -279,7 +279,7 @@ public:
         void (*callback)();
 
         int pin;
-        AxesSetting axesSetting;
+        EnabledAxes enabledAxes;
     private:
         /**
          * Helper function to aid configuration of Interrupts
@@ -327,14 +327,14 @@ public:
          */
         AccelHighGInterrupt(
                 BNO055 bno055,
-                BNO055::Interrupt::AxesSetting axesSetting0,
+                BNO055::Interrupt::EnabledAxes axesSetting0,
                 void (*callback0)(), int pin,
                 byte duration0 = 0b1111, // default value from datasheet
                 byte threshold0 = 0b11000000  // default value from datasheet
         ) : Interrupt(bno055, 5, 5, axesSetting0, callback0, pin) {
             duration = duration0;
             threshold = threshold0;
-            axesSetting = axesSetting0;
+            enabledAxes = axesSetting0;
         }
 
         /**
@@ -345,14 +345,14 @@ public:
             sensor->setPageID(1);
             bool result = sensor->writeRegister(BNO055_ACC_HG_DURATION, duration) &&
                           sensor->writeRegister(BNO055_ACC_HG_THRES, threshold) &&
-                          sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axesSetting.get() << 5);
+                          sensor->writeRegister(BNO055_ACC_INT_SETTINGS, enabledAxes.getEnabledAxes() << 5);
             sensor->setPageID(0);
             return result;
         }
     };
 
     /**
-     * Implements the slow/no motion interrupt. WARNING: I could not get this one working
+     * Implements the slow/no motion interrupt. WARNING: I could not getEnabledAxes this one working
      * properly.
      */
     class AccelSlowNoMotionInterrupt : public BNO055::Interrupt {
@@ -365,15 +365,16 @@ public:
             SLOW_MOTION = false,
             NO_MOTION = true
         };
+
         AccelSlowNoMotionInterrupt(
                 BNO055 bno055,
-                BNO055::Interrupt::AxesSetting axesSetting0,
+                BNO055::Interrupt::EnabledAxes axesSetting0,
                 void (*callback0)(), int pin,
                 MODE mode0 = NO_MOTION, // default value from datasheet
                 byte duration0 = 0b101, // default value from datasheet
                 byte threshold0 = 0b1010 // default value from datasheet
-                ) : Interrupt(bno055,7,7,
-                                        axesSetting0, callback0, pin) {
+        ) : Interrupt(bno055, 7, 7,
+                      axesSetting0, callback0, pin) {
             duration = duration0;
             threshold = threshold0;
             mode = mode0;
@@ -388,11 +389,149 @@ public:
                     // write duration and mode setting
                     sensor->writeRegister(BNO055_ACC_NM_SET, setting) &&
                     // write axes setting
-                    sensor->writeRegister(BNO055_ACC_INT_SETTINGS, axesSetting.get() << 2);
+                    sensor->writeRegister(BNO055_ACC_INT_SETTINGS, enabledAxes.getEnabledAxes() << 2);
             sensor->setPageID(0);
             return result;
         }
     };
+
+    class AccelAnyMotionInterrupt : public Interrupt {
+    private:
+        byte threshold;
+        byte duration;
+    public:
+        AccelAnyMotionInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::EnabledAxes enabledAxes0,
+                void (*callback0)(),
+                int pin,
+                byte duration0 = 0b11,
+                byte threshold0 = 0b00010100 // default value from datasheet
+        ) : Interrupt(bno055, 6, 6,
+                      enabledAxes0, callback0, pin) {
+            duration = duration0;
+            threshold = threshold0;
+        }
+
+        bool setup() {
+            if (duration > 4 || duration < 0) duration = 0;
+            sensor->setPageID(1);
+            bool result =
+                    sensor->writeRegister(BNO055_ACC_AM_THRES, threshold) &&
+                    sensor->writeRegister(BNO055_ACC_INT_SETTINGS,
+                                          enabledAxes.getEnabledAxes() << 2 | duration);
+            sensor->setPageID(0);
+            return result;
+        }
+    };
+
+    class GyroHighRateInterrupt : public Interrupt {
+    private:
+        struct GyroHRAxisSetting {
+            // default values from datasheet:
+            byte duration = 0b00011001;
+            byte threshold = 0b01;
+            byte hysteresis = 0b0;
+        };
+    public:
+        class GyroHRAxes {
+        public:
+            GyroHRAxisSetting x;
+            GyroHRAxisSetting y;
+            GyroHRAxisSetting z;
+
+            /**
+             * Output a buffer of bytes to write to registers 18-1D
+             * @param output
+             */
+            void get(byte *output) const {
+                *output = (0b00011111 & x.threshold) | ((0b11 & x.hysteresis) << 5); output++;
+                *output = x.duration; output++;
+
+                *output = (0b00011111 & y.threshold) | ((0b11 & y.hysteresis) << 5); output++;
+                *output = y.duration; output++;
+
+                *output = (0b00011111 & z.threshold) | ((0b11 & z.hysteresis) << 5); output++;
+                *output = z.duration; output++;
+            }
+        };
+    private:
+        GyroHRAxes axesSetting{};
+        bool filterEnabled;
+    public:
+        GyroHighRateInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::EnabledAxes enabledAxes0,
+                void (*callback0)(),
+                int pin,
+                GyroHRAxes axesSetting0,
+                bool filterEnabled0 = false
+                ) : Interrupt(bno055, 3, 3,
+                              enabledAxes0, callback0, pin) {
+            axesSetting = axesSetting0;
+            filterEnabled = filterEnabled0;
+        }
+
+        bool setup() {
+            // gyro interrupt axes settings
+            byte buffer[6];
+            axesSetting.get(buffer);
+
+            // filter and enabled axes settings
+            byte currentGyrIntSetting = sensor->readRegister(BNO055_GYR_INT_SETTING);
+            byte newGyrIntSetting = (
+                    (
+                            (0b1 & filterEnabled) << 7) | (enabledAxes.getEnabledAxes() << 3) // construct new values
+                            | (0b01000111 & currentGyrIntSetting) // retain old setting
+                    );
+            sensor->setPageID(1);
+            bool result =
+                    sensor->writeMultipleRegisters(buffer, BNO055_GYR_HR_X_SET, 6) &&
+                    sensor->writeRegister(BNO055_GYR_INT_SETTING, newGyrIntSetting);
+            sensor->setPageID(0);
+            return result;
+        }
+    };
+
+    class GyroAnyMotionInterrupt : public Interrupt {
+    private:
+        bool filterEnabled;
+        byte threshold;
+        byte slopeSamples;
+        byte awakeDuration;
+    public:
+        GyroAnyMotionInterrupt(
+                BNO055 bno055,
+                BNO055::Interrupt::EnabledAxes enabledAxes0,
+                void (*callback0)(),
+                int pin,
+                byte threshold0 = 0b100,
+                byte slopeSamples0 = 0b10,
+                byte awakeDuration0 = 0b10,
+                bool filterEnabled0 = false
+                ) : Interrupt(bno055, 2, 2,
+                              enabledAxes0, callback0, pin) {
+            threshold = threshold0;
+            slopeSamples = slopeSamples0;
+            awakeDuration = awakeDuration0;
+            filterEnabled = filterEnabled0;
+        }
+
+        bool setup() {
+            // filter and enabled axes settings
+            byte currentGyrIntSetting = sensor->readRegister(BNO055_GYR_INT_SETTING);
+            byte newGyrIntSetting = ((0b1 & filterEnabled) << 6) | (enabledAxes.getEnabledAxes())
+                    | (0b01000111 & currentGyrIntSetting);
+            sensor->setPageID(1);
+            bool result = sensor->writeRegister(BNO055_GYR_INT_SETTING, newGyrIntSetting) &&
+                    sensor->writeRegister(BNO055_GYR_AM_THRES, threshold) &&
+                    sensor->writeRegister(BNO055_GYR_AM_SET,
+                                          (0b00001111 & (((0b11 & awakeDuration) << 2) | (0b11 & slopeSamples))));
+            sensor->setPageID(0);
+            return result;
+        }
+    };
+
 };
 
 

@@ -14,6 +14,7 @@ public:
     byte readRegister(byte offset);
     bool writeRegister(byte offset, byte data);
     void readMultipleRegisters(byte *outputPointer, byte offset, byte length);
+    bool writeMultipleRegisters(byte *buffer, byte offset, byte length);
 protected:
     byte address;
     TwoWire *pipe;

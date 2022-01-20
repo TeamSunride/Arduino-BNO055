@@ -26,14 +26,16 @@ void setup() {
 
     sensor.resetSystem();
 
-    BNO055::GyroAnyMotionInterrupt gyroAnyMotionInterrupt(
+    BNO055::GyroHighRateInterrupt::GyroHRAxes axesSettings{};
+
+    BNO055::GyroHighRateInterrupt gyroHighRateInterrupt(
             sensor,
             (new BNO055::Interrupt::EnabledAxes)->enableX(),
             myCallback,
-            2);
-    gyroAnyMotionInterrupt.setup();
-    gyroAnyMotionInterrupt.enable();
-    gyroAnyMotionInterrupt.mask();
+            2, axesSettings, false);
+    gyroHighRateInterrupt.setup();
+    gyroHighRateInterrupt.enable();
+    gyroHighRateInterrupt.mask();
     sensor.setOperationMode(GYROONLY);
     pinMode(3, OUTPUT);
 }

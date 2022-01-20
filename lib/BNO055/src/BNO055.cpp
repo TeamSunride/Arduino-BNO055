@@ -315,7 +315,7 @@ bool BNO055::Interrupt::unmask() {
     return editInterruptState(BNO055_INT_MSK, MASK_BIT, false);
 }
 
-byte BNO055::Interrupt::AxesSetting::get() {
+byte BNO055::Interrupt::EnabledAxes::getEnabledAxes() {
     byte result = 0b000;
     bitWrite(result, 2, z);
     bitWrite(result, 1, y);

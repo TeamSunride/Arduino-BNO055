@@ -26,20 +26,19 @@ void setup() {
 
     sensor.resetSystem();
 
-    BNO055::GyroAnyMotionInterrupt gyroAnyMotionInterrupt(
+    BNO055::AccelAnyMotionInterrupt anyMotionInterrupt(
             sensor,
-            (new BNO055::Interrupt::EnabledAxes)->enableX(),
+            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ(),
             myCallback,
             2);
-    gyroAnyMotionInterrupt.setup();
-    gyroAnyMotionInterrupt.enable();
-    gyroAnyMotionInterrupt.mask();
-    sensor.setOperationMode(GYROONLY);
+    anyMotionInterrupt.setup();
+    anyMotionInterrupt.enable();
+    anyMotionInterrupt.mask();
+    sensor.setOperationMode(ACCONLY);
     pinMode(3, OUTPUT);
 }
 
 void loop() {
     Serial.println(n);
     sensor.clearInterrupt();
-    delay(300);
 }
