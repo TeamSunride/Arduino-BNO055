@@ -30,7 +30,7 @@ void setup() {
     // define the configuration of our interrupt
     BNO055::AccelHighGInterrupt interrupt(
             sensor,
-            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ(),
+            (new BNO055::Interrupt::EnabledAxes)->enableX().enableY().enableZ(),
             myCallback,
             2);
 

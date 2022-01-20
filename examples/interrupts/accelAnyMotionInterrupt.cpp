@@ -28,7 +28,7 @@ void setup() {
 
     BNO055::AccelAnyMotionInterrupt anyMotionInterrupt(
             sensor,
-            (new BNO055::Interrupt::AxesSetting)->enableX().enableY().enableZ(),
+            (new BNO055::Interrupt::EnabledAxes)->enableX().enableY().enableZ(),
             myCallback,
             2);
     anyMotionInterrupt.setup();
