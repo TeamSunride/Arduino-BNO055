@@ -1,0 +1,19 @@
+{
+  "name": "Arduino-BNO055",
+  "version": "1.0.0",
+  "description": "PlatformIO / Arduino library designed to make it easy to use advanced features of the Bosch BNO055 IMU.",
+  "keywords": "arduino, sensor, BNO055, adafruit, interrupt, IMU",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/TeamSunride/Arduino-BNO055"
+  },
+  "authors":
+  [
+    {
+      "name": "Tom Danvers",
+      "url": "https://tdanvers.com/",
+      "maintainer": true
+    }
+  ]
+}

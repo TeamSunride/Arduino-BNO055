@@ -223,7 +223,7 @@ void test_BNO055_slowNoMotionInterrupt() {
     sensor.setOperationMode(ACCONLY);
 
     Serial.println("Please accelerate the sensor harshly");
-    delay(15000);
+    delay(5000);
     TEST_ASSERT_TRUE_MESSAGE(interruptReceived, "The interrupt either didn't work or you didn't move the sensor");
 }
 
