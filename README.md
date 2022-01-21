@@ -36,7 +36,7 @@ config register by reading the datasheet.
 
 ## Examples
 
-Refer to the [examples directory](examples)
+Refer to the [examples directory](/examples)
 
 To run an example (in PlatformIO), modify platformio.ini to support your board/framework, and then run the following:
 
@@ -124,7 +124,7 @@ void loop() {
 
 Most/all methods are documented well in [`BNO055.h`](src/BNO055.h).
 
-Refer to the [examples directory](examples) and also the [unit test](test/test_BNO055.cpp) for usage examples.
+Refer to the [examples directory](/examples) and also the [unit test](test/test_BNO055.cpp) for usage examples.
 
 The best way of understanding how things work is to [read the datasheet](datasheet.pdf)
 
